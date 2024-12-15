@@ -1,0 +1,619 @@
+---
+title: 'Cypressにおけるコンポーネントテスト|Cypress ドキュメント'
+description: 'CypressコンポーネントテストをReact,Angular,Vue若しくはSvelteで書く。セットアップ方法、書き方、そして最初のコンポーネントテストの実行方法を学ぶ.'
+sidebar_position: 20
+sidebar_label: 始めよう
+---
+
+# Cypressコンポーネントテスト
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- React, Angular、Vue、Svelteでのコンポーネントテストのセットアップ方法
+- 初めてのコンポーネントテストの書き方
+- コンポーネントテストの実行方法
+  :::
+
+[Cypressのインストール](/app/get-started/install-cypress)と
+[Cypress をオープンする](/app/get-started/open-the-app)が無事できたと想定して、
+ここでは、コンポーネントテストをセットアップしよう。
+
+Cypressアプリではプロジェクトの設定全体にわたってガイドを行う。
+
+<DocsVideo
+  src="/img/snippets/getting-started-with-ct.mp4"
+  title="Getting Started With Component Testing"
+/>
+
+## コンポーネントテストを設定する
+
+### サポートされているフレームワーク
+
+Cypressでは現在、
+[React](/app/component-testing/react/overview)、
+[Angular](/app/component-testing/angular/overview)、
+[Vue](/app/component-testing/vue/overview)、
+[Svelte](/app/component-testing/svelte/overview)用の公式なマウントライブラリが
+用意されていて、下記の開発サーバとフレームワークがサポートされている:
+
+| フレームワーク                                                                                                       | UIライブラリ    | バンドラー   |
+| ------------------------------------------------------------------------------------------------------------------ | ------------- | ----------- |
+| [Create React App 4-5](/app/component-testing/react/overview#Create-React-App-CRA)                                 | React 16-18   | Webpack 4-5 |
+| [Next.js 10-14](/app/component-testing/react/overview#Nextjs)                                                      | React 16-18   | Webpack 5   |
+| [React with Vite](/app/component-testing/react/overview#React-with-Vite)                                           | React 16-18   | Vite 2-5    |
+| [React with Webpack](/app/component-testing/react/overview#React-with-Webpack)                                     | React 16-18   | Webpack 4-5 |
+| [Vue CLI 4-5](/app/component-testing/vue/overview#Vue-CLI)                                                         | Vue 2-3       | Webpack 4-5 |
+| [Nuxt 2](/app/component-testing/vue/overview#Nuxt) <Badge type="info">Alpha</Badge>                                | Vue 2-3       | Webpack 4-5 |
+| [Vue with Vite](/app/component-testing/vue/overview#Vue-with-Vite)                                                 | Vue 2-3       | Vite 2-5    |
+| [Vue with Webpack](/app/component-testing/vue/overview#Vue-with-Webpack)                                           | Vue 2-3       | Webpack 4-5 |
+| [Angular](/app/component-testing/angular/overview#Framework-Configuration)                                         | Angular 13-18 | Webpack 5   |
+| [Svelte with Vite](/app/component-testing/svelte/overview#Svelte-with-Vite) <Badge type="info">Alpha</Badge>       | Svelte 3-4    | Vite 2-5    |
+| [Svelte with Webpack](/app/component-testing/svelte/overview#Svelte-with-Webpack) <Badge type="info">Alpha</Badge> | Svelte 3-4    | Webpack 4-5 |
+
+下記のインテグレーションはCypressコミュニティメンバにより構築、メンテナンスされている。
+
+| フレームワーク                                                                            | UIライブラリ | バンドラー|
+| --------------------------------------------------------------------------------------- | -----------| --------|
+| [Qwik](https://github.com/qwikifiers/cypress-qwik) <Badge type="info">Community</Badge> | Qwik       | Vite    |
+| [Lit](https://github.com/redfox-mx/cypress-lit) <Badge type="info">Community</Badge>    | Lit        | Vite    |
+
+### テストのタイプを選択する
+
+Cypressを初めて実行する際は、E2Eテストかコンポーネントテストかのいずれかを設定するように求められる。「コンポーネントテスト」をクリックして、設定ウィザードを開始する。
+
+:::info
+
+テストタイプの選択方法の詳細については、この[テストタイプガイド](/app/core-concepts/testing-types) をお勧めする。
+
+:::
+
+<DocsImage
+  src="/img/app/component-testing/select-test-type.jpg"
+  caption="Choose Component Testing"
+/>
+
+### プロジェクトセットアップ
+
+プロジェクトセットアップ画面はフレームワークとバンドラーを自動的に検出する。
+この例では、[React](https://react.dev/)と[Vite](https://vitejs.dev/)を使う。「次のステップ」をクリックして継続する。
+
+<DocsImage
+  src="/img/app/component-testing/project-setup-react.jpg"
+  caption="React and Vite are automatically detected"
+/>
+
+### 依存関係をインストールする
+
+次の画面では必要な依存関係がすべてインストールされていることをチェックする。すべての項目に緑のチェックボックスがあり、すべてが正常であることが示されているので、「次へ」をクリックする。
+
+<DocsImage
+  src="/img/app/component-testing/dependency-detection-react.jpg"
+  caption="All necessary dependencies are installed"
+/>
+
+### 設定ファイル
+
+次に、Cypressは必要な設定ファイルをすべて生成して、プロジェクトに加えたすべての変更のリストを表示する。「次へ」をクリックする。
+
+<DocsImage
+  src="/img/app/component-testing/scaffolded-files.jpg"
+  caption="The Cypress launchpad will scaffold all of these files for you"
+/>
+
+### ブラウザを選択する
+
+コンポーネントテストの設定をすると、ブラウザの選択画面が表示される。
+
+選択したブラウザを選んで「コンポーネントテストを開始する」ボタンをクリックして、Cypressアプリを開く。
+
+<DocsImage
+  src="/img/app/component-testing/select-browser.jpg"
+  caption="Choose your browser"
+/>
+
+## 最初のテストを書く
+
+この時点で、プロジェクトは Cypress Component Testing を使うように設定されている。しかしながら、アプリが表示されても、スペックは見つからない。というのも、まだ何も作っていないからだ。ここで、最初のコンポーネントテストを書く必要がある。
+
+<DocsImage
+  src="/img/app/component-testing/create-your-first-spec-cfc.png"
+  alt="Cypress App UI with Create your first spec page with buttons for Create from component or Create new spec"
+/>
+
+### フレームワーク
+
+Cypressには現在、
+[React](/app/component-testing/react/overview)、
+[Angular](/app/component-testing/angular/overview)、
+[Vue](/app/component-testing/vue/overview)、
+[Svelte](/app/component-testing/svelte/overview)のための公式のマウントライブラリが用意されている。
+公式フレームワークサポートに加えて、
+[Qwik](https://github.com/qwikifiers/cypress-qwik)や[Lit](https://github.com/redfox-mx/cypress-lit)など、多くのコミュニティプラグインがある。
+
+### 最初のコンポーネントテスト
+
+すべてのフレームワークはそれぞれ異なり、独自のニュアンスがあるが、一般的に、テストを書くことについては、非常に似ている。`StepperComponent`用のテストの基本的な記述方法について見てみよう。
+
+`Stepper`コンポネントが２つの`ボタン`で構成されているとしよう。1つはカウンターを**デクリメント**するために使われ、1つはカウンタを**インクリメント**させるために使われる。また、ボタンの間にある `span`タグは、カウンタの現在の値を示している。
+
+:::info
+各フレームワークにおける、Stepperコンポーネントとそのテストの例については、[Component Testing Quick Start Apps Repo](https://github.com/cypress-io/component-testing-quickstart-apps) を参照してほしい。
+
+:::
+
+<Tabs groupId="frameworks">
+<TabItem value="React" active>
+
+```jsx
+import React from 'react'
+import Stepper from './Stepper'
+
+describe('<Stepper />', () => {
+  it('mounts', () => {
+    // see: https://on.cypress.io/mounting-react
+    cy.mount(<Stepper />)
+  })
+})
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```typescript
+import { StepperComponent } from './stepper.component'
+
+describe('StepperComponent', () => {
+  it('mounts', () => {
+    // see: https://on.cypress.io/mounting-angular
+    cy.mount(StepperComponent)
+  })
+})
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```js
+import Stepper from './Stepper.vue'
+
+describe('<Stepper />', () => {
+  it('mounts', () => {
+    // see: https://on.cypress.io/mounting-vue
+    cy.mount(Stepper)
+  })
+})
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```js
+import Stepper from './Stepper.svelte'
+
+describe('Stepper', () => {
+  it('mounts', () => {
+    // see: https://on.cypress.io/mounting-svelte
+    cy.mount(Stepper)
+  })
+})
+```
+
+</TabItem>
+</Tabs>
+
+### テストの説明
+
+スペックの内容を分解してみよう。まず、`Stepper`コンポーネントをインポートする。
+次に、関数`descibe`と`it`を使ってテストを構成する。これにより、`method`ブロックを使って、テストをセクションにグルーピングすることができる。
+これらはCypressにより提供されているグローバル関数なので、これらを使うために直接インポートする必要はない、ということだ。
+最上位の`describe`ブロックはファイル中のすべてのテストのコンテナになり、それぞれの`it`は個々のテストを表す。
+`describe`関数は２つのパラメータを取り、１つ目はテストスイートの名前、２つ目はテストを実行する関数である。
+
+`describe`内に`it`関数を使ってテストを定義した。
+`it`への最初のパラメータは`spec`の簡単な説明で、２つ目のパラメータはテストコードを含む関数である。
+上記の例では、テストは１つしかないが、一連のテストに対して`describe`内に複数の`it`ブロックを追加する方法については後ほど説明する。
+
+:::info
+
+[cy.mount()](/api/commands/mount)メソッドはコンポーネントをテストアプリにマウントしてそれに対してテストを実行できるようにする。
+
+:::
+
+では、実際のテストを見てみよう。
+
+## テストを実行する
+
+テスト用に開いたブラウザに戻ると、スペックリストに、`Stepper`コンポネントが表示されているはずだ。
+これをクリックすると、そのスペックが実行される。
+
+<DocsVideo src="/img/snippets/specs-list.mp4" title="Specs List" />
+
+最初のテストではコンポーネントが、エラーせずデフォルトの状態でマウントできることを検証する。
+テストの実行中にランタイムエラーが発生する場合、テストは失敗し、問題の原因を示すスタックトレースが表示される。
+
+上記のような基本的なテストはコンポーネントのテストを始めるうえで優れた方法だ。
+Cypressは実際のブラウザ内にコンポーネントをレンダリングするので、テストランナーでコンポーネントを操作したり、
+ブラウザの開発ツールを使ってテストとコンポーネントのコードの両方を検査、デバッグするなど、
+開発中に通常使っている手法／ツールをすべて使うことができる。
+
+インクリメントボタンとデクリメントボタンを使って、`Stepper`コンポーネントを自由に操作することができる。
+
+これで、コンポーネントがマウントされたので、次のステップはコンポーネントの振る舞いが正しいことをテストすることだ。
+
+### セレクター＆アサーション
+
+デフォルトでは、Stepperのカウンターは、「0」に初期化される。
+この値は初期カウントを指定することによりオーバライドすることができる。
+これらの状態を検証するテストをいくつか書いてみよう。
+
+そのために、セレクターを使ってカウンターを含む`span`要素にアクセスして、
+次にその要素のテキストの値が期待に沿ったものであることをアサートする。
+
+Cypress を使って、DOMから項目を選択するには様々な方法がある。
+[cy.get()](/api/commands/get)を使うと CSSのようなセレクタを渡すことができる。
+
+要素を「取得」した後、[should](/api/commands/should)アサーションメソッドを使って、要素に正しいテキスト値があることを検証する。
+
+`describe`ブロック内の最初のテストのすぐ下に、下記のテストを追加する:
+
+<Tabs groupId="frameworks">
+<TabItem value="React" active>
+
+```jsx
+it('stepper should default to 0', () => {
+  cy.mount(<Stepper />)
+  cy.get('span').should('have.text', '0')
+})
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```typescript
+it('stepper should default to 0', () => {
+  cy.mount(StepperComponent)
+  cy.get('span').should('have.text', '0')
+})
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```js
+it('stepper should default to 0', () => {
+  cy.mount(Stepper)
+  cy.get('span').should('have.text', '0')
+})
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```js
+it('stepper should default to 0', () => {
+  cy.mount(Stepper)
+  cy.get('span').should('have.text', '0')
+})
+```
+
+</TabItem>
+</Tabs>
+
+テストランナーに戻ると、テストをパスしていることが表示されるはずだ。
+
+上記のテストでは、「span」を`cy.get()`に渡すことによって要素を選択する。
+これによりコンポーネント内のすべての`span`タグが選択される。
+現状、`span`は１つしかないので、これは動作する。
+しかしながら、コンポーネントが進化して、他の`span`が追加されると、このテストは失敗し始める可能性がある。
+将来の変更に対して脆弱でないセレクターを使う必要がある。
+
+`Stepper`コンポーネントでは、`span`タグには`data-cy`属性がある:
+
+<Tabs groupId="frameworks">
+<TabItem value="React" active>
+
+```jsx
+<span data-cy="counter">{count}</span>
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```html
+<span data-cy="counter">{{ count }}</span>
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```html
+<span data-cy="counter">{{ count }}</span>
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```html
+<span data-cy="counter">{count}</span>
+```
+
+</TabItem>
+</Tabs>
+
+テスト目的で使うことができる一意のIDを`data-cy`属性に割り当てる。CSS属性セレクタを`cy.get()`に使うようにテストを更新しよう:
+
+<Tabs groupId="frameworks">
+<TabItem value="React" active>
+
+```jsx
+it('stepper should default to 0', () => {
+  cy.mount(<Stepper />)
+  cy.get('[data-cy=counter]').should('have.text', '0')
+})
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```typescript
+it('stepper should default to 0', () => {
+  cy.mount(StepperComponent)
+  cy.get('[data-cy=counter]').should('have.text', '0')
+})
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```js
+it('stepper should default to 0', () => {
+  cy.mount(Stepper)
+  cy.get('[data-cy=counter]').should('have.text', '0')
+})
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```js
+it('stepper should default to 0', () => {
+  cy.mount(Stepper)
+  cy.get('[data-cy=counter]').should('have.text', '0')
+})
+```
+
+</TabItem>
+</Tabs>
+
+このテストは想定通りパスし、セレクタは将来にわたり使用できるようになった。
+優れたセレクタの作成に関する詳細については、
+[セレクタベストプラクティス](/app/core-concepts/best-practices#Selecting-Elements) のガイドを参照してほしい。
+
+### コンポーネントにpropsを渡す
+
+また、`count`propがカウントをデフォルト値の「0」以外に設定することを確認するテストも用意する必要がある。
+propを`Stepper`コンポーネントに渡すことができる:
+
+<Tabs groupId="frameworks">
+<TabItem value="React" active>
+
+```jsx
+it('supports a "count" prop to set the value', () => {
+  cy.mount(<Stepper count={100} />)
+  cy.get('[data-cy=counter]').should('have.text', '100')
+})
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```typescript
+it('supports a "count" prop to set the value', () => {
+  cy.mount(StepperComponent, {
+    componentProperties: {
+      count: 100,
+    },
+  })
+  cy.get('[data-cy=counter]').should('have.text', '100')
+})
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```js
+it('supports a "count" prop to set the value', () => {
+  cy.mount(Stepper, { props: { count: 100 } })
+  cy.get('[data-cy=counter]').should('have.text', '100')
+})
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```js
+it('supports a "count" prop to set the value', () => {
+  cy.mount(Stepper, { props: { count: 100 } })
+  cy.get('[data-cy=counter]').should('have.text', '100')
+})
+```
+
+</TabItem>
+</Tabs>
+
+### インタラクションをテストする
+
+上記のテストでは要素をマウントして選択したが要素とのやり取りはなかった。ユーザが「インクリメント」や「デクリメント」ボタンをクリックすると、カウンターの値が変化することをテストする必要がある。
+
+そのためには、[click()](/api/commands/click)コマンドを使って、
+コンポーネントとやり取りをする。このコマンドは実際のユーザと同じように、DOM要素をクリックする。
+
+下記のテストを追加する:
+
+<Tabs groupId="frameworks">
+<TabItem value="React" active>
+
+```jsx
+it('when the increment button is pressed, the counter is incremented', () => {
+  cy.mount(<Stepper />)
+  cy.get('[data-cy=increment]').click()
+  cy.get('[data-cy=counter]').should('have.text', '1')
+})
+
+it('when the decrement button is pressed, the counter is decremented', () => {
+  cy.mount(<Stepper />)
+  cy.get('[data-cy=decrement]').click()
+  cy.get('[data-cy=counter]').should('have.text', '-1')
+})
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```typescript
+it('when the increment button is pressed, the counter is incremented', () => {
+  cy.mount(StepperComponent)
+  cy.get('[data-cy=increment]').click()
+  cy.get('[data-cy=counter]').should('have.text', '1')
+})
+
+it('when the decrement button is pressed, the counter is decremented', () => {
+  cy.mount(StepperComponent)
+  cy.get('[data-cy=decrement]').click()
+  cy.get('[data-cy=counter]').should('have.text', '-1')
+})
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```js
+it('when the increment button is pressed, the counter is incremented', () => {
+  cy.mount(Stepper)
+  cy.get('[data-cy=increment]').click()
+  cy.get('[data-cy=counter]').should('have.text', '1')
+})
+
+it('when the decrement button is pressed, the counter is decremented', () => {
+  cy.mount(Stepper)
+  cy.get('[data-cy=decrement]').click()
+  cy.get('[data-cy=counter]').should('have.text', '-1')
+})
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```js
+it('when the increment button is pressed, the counter is incremented', () => {
+  cy.mount(Stepper)
+  cy.get('[data-cy=increment]').click()
+  cy.get('[data-cy=counter]').should('have.text', '1')
+})
+
+it('when the decrement button is pressed, the counter is decremented', () => {
+  cy.mount(Stepper)
+  cy.get('[data-cy=decrement]').click()
+  cy.get('[data-cy=counter]').should('have.text', '-1')
+})
+```
+
+</TabItem>
+</Tabs>
+
+各テストの結果を見ると、カウンターが今は**インクリメント**のテストでは「1」、**デクリメント**テストでは「-1」であることがわかると思う。テストにパスできただけでなく、ブラウザで結果が可視化できているのがわかる。
+
+## イベントを使ったコンポーネントをテストする
+
+`Stepper`コンポーネントのすべての状態（例：カウント）はコンポーネントで内部的に処理され、コンシューマは状態の変更についてアラートを受ける。
+
+`Stepper`コンポーネントの開発者として、エンドユーザが**インクリメント**ボタンと**デクリメント**ボタンをクリックした際に、消費コンポーネント内の適切な値で適切なイベントがトリガーされることを確認したいだろうと思う。
+
+### スパイを使う
+
+[Cypressスパイ](/app/guides/stubs-spies-and-clocks#Spies)を使って、
+これらのイベントが正しく呼び出されることを検証することができる。
+スパイは、何回呼び出されたか、どんなパラメータを使って呼び出されたかを追跡する特別な関数である。
+次に、スパイをイベントに割り当てて、コンポーネントと対話をして、期待するパラメータで呼び出されたことを検証するためにスパイを照会することができる。
+
+スパイをセットアップしてそれをコンポーネントにバインドしてみよう:
+
+<Tabs groupId="frameworks">
+<TabItem value="React" active>
+
+```jsx
+it('clicking + fires a change event with the incremented value', () => {
+  const onChangeSpy = cy.spy().as('onChangeSpy')
+  cy.mount(<Stepper onChange={onChangeSpy} />)
+  cy.get('[data-cy=increment]').click()
+  cy.get('@onChangeSpy').should('have.been.calledWith', 1)
+})
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```typescript
+it('clicking + fires a change event with the incremented value', () => {
+  const onChangeSpy = cy.spy().as('onChangeSpy')
+  cy.mount(StepperComponent, {
+    componentProperties: {
+      change: {
+        emit: onChangeSpy,
+      } as any,
+    },
+  })
+  cy.get('[data-cy=increment]').click()
+  cy.get('@changeSpy').should('have.been.calledWith', 1)
+})
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```js
+it('clicking + fires a change event with the incremented value', () => {
+  const onChangeSpy = cy.spy().as('onChangeSpy')
+  cy.mount(Stepper, { props: { onChange: onChangeSpy } })
+  cy.get('[data-cy=increment]').click()
+  cy.get('@onChangeSpy').should('have.been.calledWith', 1)
+})
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```js
+it('clicking + fires a change event with the incremented value', () => {
+  const changeSpy = cy.spy().as('changeSpy')
+  cy.mount(Stepper).then(({ component }) => {
+    component.$on('change', changeSpy)
+  })
+  cy.get('[data-cy=increment]').click()
+  cy.get('@changeSpy').should('have.been.calledWithMatch', {
+    detail: { count: 1 },
+  })
+})
+```
+
+</TabItem>
+</Tabs>
+
+まず、`cy.spy()`メソッドを呼び出して新しいスパイを作成する。
+スパイに[エイリアス](/app/core-concepts/variables-and-aliases)を設定するための文字列を渡す。
+これはスパイに後で参照できる名前を割り当てる。
+`cy.mount()`では、コンポーネントを初期化し、スパイを渡す。その後、インクリメントボタンをクリックする。
+
+次の行は、少し異なる。`cy.get()`メソッドを使って要素を選択する方法について見てきたが、先にセットアップしたエイリアスを取得するのにも使うことができる。
+`cy.get()` を使って、(エイリアス名の前に"@"を付けることによって)スパイへのエイリアスを取得する。メソッドが期待していた値で呼び出されることをアサートする。
+
+これにより、`Stepper`コンポーネントは十部にテストされた。よくできました!
+
+## 次は？
+
+おめでとう。Cypressを使ったコンポーネントテストの基本を見てきた.
+
+Cypressを使ったテストに関する詳細については、
+[Cypressのご紹介](/app/core-concepts/introduction-to-cypress)ガイドを参照してほしい。

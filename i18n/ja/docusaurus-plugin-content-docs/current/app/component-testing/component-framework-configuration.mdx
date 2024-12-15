@@ -1,0 +1,173 @@
+---
+title: 'コンポーネントテストを設定する | Cypress ドキュメント'
+description: 'カスタムindexファイル、開発サービス、スペックパターンを使ってコンポーネントテスト用にCypressを設定する.'
+sidebar_position: 30
+sidebar_label: 設定
+---
+
+# コンポーネントテストの設定
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ​ここで学ぶこと
+
+- コンポーネントテストを行うためのCypressの設定方法
+- カスタムインデックスファイルの使い方
+- カスタム開発サーバの使い方
+- コンポーネントテストのためのカスタムスペックパターンの設定方法
+
+:::
+
+プロジェクトで初めてCypressを起動すると、アプリケーションは自動的にセットアップと構成をガイドする。始めるのに他にするべきことはない。
+
+サポートされている開発サーバのリストとその構成方法については、各UIフレームワークの概要ガイドにある「フレームワーク構成」ガイドを参照してほしい。
+
+下記は、プロジェクトに合わせてカスタマイズ可能な、より高度な構成オプションだ。
+
+## カスタムインデックスファイル
+
+デフォルトでは、Cypressはコンポーネントを、`cypress/support/component-index.html` に置かれている HTMLファイルにレンダリングする。
+
+このインデックスファイルを使えば、スタイル、フォント、外部スクリプトなど、グローバルアセットを追加することができるようになる。
+
+[コンポーネントの構成](/app/references/configuration#component)オプションにある、
+`indexHtmlFile`オプションを使って、別のパスをファイルに提供することができる:
+
+```js
+{
+  component: {
+    devServer,
+    indexHtmlFile: '/custom/path/to/component-index.html'
+  }
+}
+```
+
+## カスタム開発サーバ
+
+カスタム関数を`devServer`オプションに渡すことができる。これにより、Cypressにより提供されていないビルドシステムをそのまま使うことができるようになる。これらはCypress コミュニティにより提供されているアプリが含まれていないプレビュービルド、あるいは作成したカスタムビルドである。
+
+この関数のシグネチャは、唯一のパラメータとして、下記のプロパティをもつオブジェクトを１つとり、開発サーバのポートとシャットダウンするためのコールバックを含んだオブジェクトを解決する必要がある。
+
+```ts
+interface DevServerOptions {
+  specs: Cypress.Spec[]
+  cypressConfig: Cypress.PluginConfigOptions
+  devServerEvents: NodeJS.EventEmitter
+}
+```
+
+:::cypress-config-example
+
+```ts
+{
+  component: {
+    async devServer({specs, cypressConfig, devServerEvents}: DevServerOptions) {
+      const {port, close} = await startDevServer(specs, cypressConfig, devServerEvents)
+
+      return {
+        port,
+        close
+      }
+    },
+  },
+}
+```
+
+:::
+
+`cypressConfig`に定義された`devServerPublicPathRoute`を使ったテスト中のトリガーされたリクエストは、サーバに転送される。Cypressは、テストが開始されるときに、`[devServerPublicPathRoute]/index.html`へのリクエストをトリガーする。サーバは、`cypressConfig.indexHtmlFile`で参照されたHTMLファイルでリプライし、サポートファイルと実際のテストをロードするためにスクリプトを注入する必要がある。
+
+```ts
+function createServer(cypressConfig, bundleDir, port = 1234) {
+  const app = express()
+
+  // read kickstart script - see below for an example
+  const clientScript = readFileSync(
+    path.join(__dirname, './client-script.js'),
+    'utf8'
+  )
+
+  app.get(
+    cypressConfig.devServerPublicPathRoute + '/index.html',
+    async (_req, res) => {
+      // read custom index.html file
+      const html = await fs.readFile(
+        path.join(cypressConfig.repoRoot, cypressConfig.indexHtmlFile),
+        { encoding: 'utf8' }
+      )
+
+      // inject kickstart-script
+      const output = html.replace(
+        '</head>',
+        `<script type="module">${clientScript}</script></head>`
+      )
+      res.send(output)
+    }
+  )
+
+  // you need to establish some url-to-path-mapping, if your bundler outputs
+  // the full directory structure you can map this one to one
+  app.use(cypressConfig.devServerPublicPathRoute, express.static(bundleDir))
+
+  app.listen(port)
+}
+```
+
+実際の例では、Vite開発サーバで使われる[このローダー](https://github.com/cypress-io/cypress/blob/466155c2125476374d9f9549530f67d0c6354a41/npm/vite-dev-server/src/plugins/cypress.ts#L82-L92)を参照することができる。
+
+クライアントスクリプトは親フレームのCypress インスタンスから現在のアクティブなテスト上で情報を検索し、対応するバンドルをロードする必要がある。サポートファイルが定義されていれば、それがテストバンドルのトップに注入されるか、テストスクリプトの前にロードされる必要がある。
+
+```ts
+const CypressInstance = (window.Cypress = parent.Cypress)
+const devServerPublicPathRoute = CypressInstance.config(
+  'devServerPublicPathRoute'
+)
+
+let importPromise = Promise.resolve()
+
+// If you do not bundle your support file along with the tests,
+// you need to add a separate import statement for the support file.
+const supportFilePath = CypressInstance.config('supportFile')
+if (supportFilePath) {
+  const relative = supportFilePath.replace(
+    CypressInstance.config('projectRoot'),
+    ''
+  )
+  importPromise = importPromise.then(
+    () => import(`${devServerPublicPathRoute}${relative}`)
+  )
+}
+
+// load the spec - you can extend the load function to also load css
+const { relative } = CypressInstance.spec
+importPromise = importPromise.then(
+  () => import(`${devServerPublicPathRoute}/${relative}`)
+)
+
+// trigger loading the imports
+CypressInstance.onSpecWindow(window, importPromise)
+
+// then start the test process
+CypressInstance.action('app:window:before:load', window)
+```
+
+より完全な例については、[vite-devserverで使われているキックスタートスクリプト](https://github.com/cypress-io/cypress/blob/develop/npm/vite-dev-server/client/initCypressTests.js) を参照してほしい。
+
+`devServerEvents`イベントエミッターは、`dev-server:compile:success`イベントを発行して完成したビルドをcypressに通知を行い、変更されたエントリポイントを通知する`dev-server:specs:changed`イベントをリッスンするために使われる。
+
+## コンポーネントテストのためのスペックパターン
+
+デフォルトでは、Cypressは、`.cy.js`、`.cy.jsx`、`.cy.ts`あるいは`cy.tsx`の拡張子のついた、プロジェクト内の任意の場所にあるスペックファイルを探す。しかしながら、カスタムな`specPattern`の値を使って、コンポーネントテストのこの振る舞いを変更することができる。下記の例では、同じ拡張子をもつスペックファイルを検索するようにCypressに設定したが、`src`フォルダあるいはそのサブフォルダ内のみを検索する。
+
+```js
+{
+  component: {
+    specPattern: 'src/**/*.cy.{js,jsx,ts,tsx}'
+  }
+}
+```
+
+## 追加の設定
+
+利用可能なすべての構成オプションの詳細については、
+[構成リファレンス](/app/references/configuration)を参照してほしい。

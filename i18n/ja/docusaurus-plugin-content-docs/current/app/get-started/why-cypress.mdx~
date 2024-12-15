@@ -1,0 +1,326 @@
+---
+title: 'Cypressテストソリューション|Cypressドキュメント'
+description: 'エンドツーエンド、コンポーネント、アクセシビリティテストに関する包括的なガイドについて、Cypress ドキュメントを参照して、機能、コマンド、ベストプラクティスを見つけて、今すぐCypress を始めよう。'
+sidebar_label: なぜ、Cypressなのか?
+sidebar_position: 10
+---
+
+# なぜ、Cypressなのか?
+
+:::info
+
+##### <Icon name="question-circle" color="#0097A8" /> ここで学ぶこと
+
+- Cypress がテストに向けて提供するソリューション
+- Cypressアプリ、Cypressクラウド、UIカバレッジ、Cypressアクセシビリティの機能
+- 我々のミッションと信念
+- Cypressと他のテストツールとの主な違い
+
+:::
+
+## 簡単に説明すると...
+
+Cypress はモダンなWeb のために構築された次世代のフロントエンドテストツールである。我々は、昨今のアプリケーションをテストし、テストスイートをメンテナンスする際に、チームが直面する重要な課題に対処する。
+
+我々のユーザの方々は、通常、ウェブアプリケーションを構築し、既存のアプリケーションの品質を向上させたいと考えている開発者、QAエンジニア、そしてチームだ。
+
+Cypressが提供するソリューションの対象は下記の通り：
+
+- [エンドツーエンドテスト](#End-to-end-Testing)
+- [コンポーネントテスト](#Component-Testing)
+- [アクセシビリティテスト](#Accessibility-Testing)
+- [UIカバレッジ](#UI-Coverage-1)
+- [その他](#Other)
+
+Cypress は、ブラウザ内で実行するあらゆるテストが可能であり、テストスイートの健全性とアプリケーションの品質を向上させる方法についての洞察を得ることができる。
+
+## プロダクト
+
+- [Cypressアプリ](/app/core-concepts/open-mode)は、テストの作成と実行のための、無料で[オープンソース](https://github.com/cypress-io/cypress)でローカルにインストールされるアプリである。
+- [Cypressクラウド](/cloud/get-started/introduction)は、テストの記録、テスト結果の提示、テスト分析を提供する有料サービスである。
+- [UIカバレッジ](/ui-coverage/get-started/introduction)は、アプリのすべてのページとコンポーネントにわたって、テストカバレッジの視覚的な概要を提供し、誰もが理解できる、カバーされていない領域についての、明確な洞察を提示する有料アドオンである。
+- [Cypressアクセシビリティ](/accessibility/get-started/introduction)は、アクセシビリティチェックを提供する提供する有料アドオンであり、アプリケーションを使う障碍者にとっての障壁を検出するのに役に立つ。
+
+Cypress はアプリケーションの品質を向上させることができる堅牢なソリューションだ。
+
+- **まず:** Cypressは、アプリケーションをローカルで構築しながら、毎日のテストをセットアップして書き始めるのに役に立つ。_ テスト駆動開発、最高！_
+- **次に:** テストスイートを構築して、CIプロバイダと[Cypressを統合](/app/continuous-integration/overview)した後、[Cypressクラウド](/cloud/get-started/introduction) は、[テストリプレイ](/cloud/features/test-replay)でテスト中に発生したことを正確に明らかにするテストの実行を記録することができる。_なぜこれが失敗したのか？_ と心配に思うことがなくなるだろう。
+- **最後に:** [Cypressアクセシビリティ](/accessibility/get-started/introduction) をアドオンして、アクセシビリティの問題と回帰に関する継続的なフィードバックを得て、さらに [UIカバレッジ](/ui-coverage/get-started/introduction) をアドオンして、アプリケーションのすべての部分をテストしたことを確認する。
+
+## 機能
+
+下記は各プロダクトの主要機能をリストアップしたものだ。
+
+### Cypressアプリ
+
+- **タイムトラベル:** Cypressは、テストの実行時にスナップショットを取る。[コマンドログ](/app/core-concepts/open-mode#Command-Log)にあるコマンド欄にマウスオーバーすると、各ステップで何が起こったかを正確に確認することができる。
+- **デバッグが容易になる:** テストが失敗している原因を推測するのは止めよう。開発者ツールなどの使い慣れたツールから[直接デバッグしよう](app/guides/debugging)。我々の読みやすいエラーとスタックトレースにより、非常に素早くデバッグできる。我々の読みやすいエラーとスタックトレースにより、非常に素早くデバッグできる。
+- **自動待機:** テストにウェイトやスリープを追加するのは止めよう。Cypressは、先に進む前に、コマンドやアサーションを
+[自動的に待機する](app/core-concepts/introduction-to-cypress#Cypress-is-Not-Like-jQuery)。非同期地獄はもうない。
+- **スパイ、スタブ、クロック:** 関数、サーバレスポンスあるいはタイマーの振る舞いを検証して、[制御](/app/guides/stubs-spies-and-clocks) する。ユニットテストで気に入っているのと同じ機能をすぐに使うことができる。
+- **ネットワークトラフィック制御:** サーバを使わなくとも簡単に、[エッジケースを制御、スタブ、テストする](app/guides/network-requests)ことができる。好きなようにネットワークトラフィックをスタブすることができる。
+- **一貫した結果:** 我々のアーキテクチャはSeleniumやWebDriverは使わない。フレークのない高速で一貫性のある信頼性の高いテストと対面してほしい。
+- **クロスブラウザテスト:** FirefoxやChromeファミリのブラウザを使ってローカルに、そして[継続的な統合パイプライン](/app/guides/cross-browser-testing)でテストを実行する。
+
+### Cypressクラウド
+
+- **テストリプレイ:** [Cypress Cloud](/cloud/get-started/introduction)に記録して、[テストをリプレイ](/cloud/features/test-replay)を使って、設定不要のデバッグのために実行中に実行されたとおりにテストを正確にリプレイする。
+- **スマートオーケストレーション:** Cypressクラウドに記録するように設定をしてしまえば、簡単にテストスイートを[並列化](/cloud/features/smart-orchestration/parallelization)し、まずは[仕様の優先順位付け](/cloud/features/smart-orchestration/spec-prioritization)を使って失敗した仕様を再実行し、[自動キャンセル](/cloud/features/smart-orchestration/run-cancellation)を使って失敗したテストの実行をキャンセルして、緊密なフィードバックループを実現する。
+- **フレーク検出:** Cypressクラウドの [薄っぺらいテスト管理](/cloud/features/flaky-test-management)を使って信頼性の低いテストを発見、診断する。
+- **ブランチレビュー:** [ブランチレビュー](/cloud/features/branch-review)を使って単一のビューでテストスイートに与える影響の大きいプルリクエストを素早く特定する。どのテストが失敗しているか、不安定であるか、保留中か、追加されたか、あるいは修正されたか、ソースブランチとベースブランチを比較して、品質の低いコードをマージするのを回避しよう。
+- **統合:** [GitHub](/cloud/integrations/source-control/github)、[GitLab](/cloud/integrations/source-control/gitlab)、あるいは[Bitbucket](/cloud/integrations/source-control/bitbucket)と統合して、プッシュ、プルリクエストのたびに、テスト結果を直接確認しよう。Cypressクラウドは [Slack](/cloud/integrations/slack)、[Jira](/cloud/integrations/jira)や[Microsoft Teams](/cloud/integrations/teams)とも統合して、チーム内での情報共有を維持しよう。
+- **テスト分析:** [テスト分析](/cloud/features/analytics/overview)を使って時間の経過とともにテスト結果を追跡し、テストスイートの傾向、回帰、改善点を特定しよう。[データ抽出API](/cloud/integrations/data-extract-api)を使って、チームにとって重要なデータを抽出しよう。
+
+### UIカバレッジ
+
+- **ビジュアルカバレッジ:** [UIカバレッジ](/ui-coverage/get-started/introduction)は、アプリのすべてのページとコンポーネントにわたるテストカバレッジの可視化された概要を提供し、誰もが理解できるカバーされていない領域についての明確な洞察を提供する。
+- **結果API:** UIカバレッジの[結果API](/ui-coverage/results-api)を使って、テストカバレッジデータにプログラムでアクセスし、既存のワークフローに統合しよう。
+
+### Cypressアクセシビリティ
+
+- **アクセシビリティチェック:** 数千もの[アクセシビリティチェック](/accessibility/get-started/introduction)をセットアップ、コードの変更、パフォーマンスの低下なしに、瞬時に追加することにより既存のCypressテストの価値を最大化する。
+- **実行レベルレポート:** [実行レベルレポート](/accessibility/core-concepts/run-level-reports)を使って、テストの実行時に判明したアクセシビリティ問題に関する詳細なレポートが得られる。
+- **結果API:** Cypressアクセシビリティの[結果API](/accessibility/results-api)を使って、プログラム的にCI環境のアクセシビリティ結果にアクセスする。
+
+## ソリューション
+
+Cypressを使えば、いくつかの異なるタイプのテストを確実に行うことができる。これによりテスト対象のアプリケーションが意図した通りに動作して、すべてのユーザがアクセスできることをさらに確信できる。
+
+### エンドツーエンドテスト
+
+Cypressは元々、ブラウザで実行されるあらゆるものに対して[エンドツーエンド(E2E)テスト](/app/end-to-end-testing/writing-your-first-end-to-end-test)を実行するように設計された。一般的な E2E テストはブラウザ内のアプリケーションを訪問して、実際のユーザと同じように、UI を介してアクションを実行する
+
+```js
+it('adds todos', () => {
+  cy.visit('https://example.cypress.io/')
+  cy.get('[data-cy="new-todo"]').type('write tests{enter}')
+  // アプリケーションが１つのアイテムを表示していることを確認する
+  cy.get('[data-cy="todos"]').should('have.length', 1)
+})
+```
+
+### コンポーネントテスト
+
+Cypress[コンポーネントテスト](/app/component-testing/get-started)は、どれだけ単純か複雑かに関わらず、複数のフロントエンドUIライブラリからコンポーネントを迅速に構築、テストできるように、コンポーネントワークベンチを提供する。
+
+[React](/app/component-testing/react/overview)、
+[Angular](/app/component-testing/angular/overview)、
+[Vue](/app/component-testing/vue/overview)、
+[Syelte](/app/component-testing/svelte/overview)用にコンポーネントをテストする方法については、それぞれを参照してほしい。
+
+<Tabs>
+<TabItem value="React">
+
+```ts
+import Button from './Button'
+
+it('uses custom text for the button label', () => {
+  cy.mount(<Button>Click me!</Button>)
+  // ボタンコンポーネントが正しいテキストであることをアサートする
+  cy.get('button').should('contains.text', 'Click me!')
+})
+```
+
+</TabItem>
+<TabItem value="Angular">
+
+```ts
+import ButtonComponent from './button.component'
+
+it('uses custom text for the button label', () => {
+  cy.mount('<app-button>Click me!</app-button>', {
+    declarations: [ButtonComponent],
+  })
+  // ボタンコンポーネントが正しいテキストであることをアサートする
+  cy.get('button').should('contains.text', 'Click me!')
+})
+```
+
+</TabItem>
+<TabItem value="Vue">
+
+```ts
+import Button from './Button.vue'
+
+it('uses custom text for the button label', () => {
+  cy.mount(Button, {
+    slots: {
+      default: 'Click me!',
+    },
+  })
+  // ボタンコンポーネントが正しいテキストであることをアサートする
+  cy.get('button').should('contains.text', 'Click me!')
+})
+```
+
+</TabItem>
+<TabItem value="Svelte">
+
+```ts
+import Button from './Button.svelte'
+
+it('uses custom text for the button label', () => {
+  cy.mount(Button, { props: { msg: 'Click me!' } })
+  // ボタンコンポーネントが正しいテキストであることをアサートする
+  cy.get('button').should('contains.text', 'Click me!')
+})
+```
+
+</TabItem>
+</Tabs>
+
+### アクセシビリティテスト
+
+Cypressテストを書いて、アプリケーションのアクセシビリティをチェックし、プラグインを使って、広範なアクセシビリティスキャンを実施することができる。Cypressクラウドにある[Cypressアクセシビリティ](/accessibility/get-started/introduction)と組み合わせると、特定のアクセシビリティ標準が満たされない場合、設定を必要とせずとも洞察を得ることができる。詳しくは、[アクセシビリティテストガイド](/app/guides/accessibility-testing)を参照してほしい。
+
+```js
+it('adds todos', () => {
+  cy.visit('https://example.cypress.io/')
+  cy.get('img#logo')
+    // 画像に正しくアルトテキストが設定されていることをアサートする
+    .should('have.attr', 'alt', 'Cypress Logo')
+})
+```
+
+<DocsImage
+  src="/img/accessibility/get-started/cypress-accessibility-overview.png"
+  alt="ルール、ビュー、devtoolsがどのように使えるかを示すユーザインタフェースのリストを含んだCypressアクセシビリティダッシュボードを示す画像"
+/>
+
+### UIカバレッジ
+
+[UIカバレッジ](/ui-coverage/get-started/introduction)を使って重要なアプリフローのテストギャップを埋めることにより、リリースの信頼性を高めることができる。データ駆動の洞察を活用してテストされていない領域をカバーして、インシデントを削減し、アプリの品質を向上させる。
+
+<DocsImage
+  src="/img/ui-coverage/get-started/uicov-docs-1.gif"
+  alt="UI Coverage demo showing UI of Cloud product"
+/>
+
+### その他
+
+Cypressは、任意のHTTP 呼び出しを実行することができるので、API テストに用いることができる。
+
+```js
+it('adds a todo', () => {
+  cy.request('POST', '/todos', { title: 'Write API Tests' })
+    .its('body')
+    .should('contain', { title: 'Write API Tests' })
+})
+```
+
+そして、多数の[公式、サードパーティプラグイン](/app/plugins/plugins-list)を介して、様々なタイプのテストを書くことができるのだ！
+
+## 我々のミッション
+
+我々のミッションは、生産性を向上させ、テストを楽しい体験にし、開発者の幸せを生み出す、活発なテストソリューションを構築することだ。
+我々は、**実際に機能する**テストプロセスのために奮闘する責務を負っている。
+我々は、我々のドキュメントが適切であると信じている。
+これは、つまり、読者の方々に**何を**だけでなく**なぜか**も併せて完全にご理解いただけるようにするということだ。
+
+我々は開発者たちが新しい世代の最新アプリケーションを迅速に、より優れた、そして、テストの管理に伴うストレスや不安を感じることなく、構築する役に立ちたいと考えている。我々は、テスト結果を活用して、改善すべき領域を積極的特定するとで、長期的な安定性のための実践的な洞察を生み出すことにより、ソフトウェア開発の技術を向上させることを目指している。
+
+我々は、自分たちが成功するために、オープンソースで繁栄するエコシステムを可能にし、育み、育てる必要があることを知っている。テストコードのすべての行は、**自分たちのコードベース**への投資であり、有料サービスや会社として密接に結合されることはない。テストは、独立して実行し
+、機能できるようにすべきだ、_常に_。
+
+我々はテストには多くの❤️ が必要であると信じており、誰もが学び、恩恵を受けることができるツール、サービス、そしてコミュニティを構築するためにここにいる。我々は、Webで働くすべての開発者が共有する最も困難な難問を解決している。我々はこのミッションを信じており、皆さんが参加して、Cypressをすべての人を幸せにする永続的なエコシステムにしてくれることを願っている。
+
+## 主な違い
+
+### アーキテクチャ
+
+ほとんどのテストツール（Seleniumなど）は、ブラウザの外部で実行され、ネットワークを介してリモートコマンドを実行することによって動作する。_Cypressは全くの逆だ_。Cypressはアプリケーションと同じ実行ループで実行される。
+
+Cypressの背後には、Nodeサーバプロセスがある。CypressとNodeプロセスはお互いに代わって常に通信し、同期し、タスクを実行する。双方の部分（フロントとバック）にアクセスすることで、アプリケーションのeventにリアルタイムに応答できるようになり、同時に、より高い権限が必要となるタスクのためにブラウザの外部で処理をすることができるようになる。
+
+Cypressは最終的に自動処理全体を上から下まで制御をし、ブラウザの内外で発生するすべてを理解できる一意の立場にある。
+これはつまり、Cypressが他のどのテストツールよりも一貫した結果を提供することができる、という意味だ。
+
+Cypressはマシン上に[ローカルにインストール](/app/get-started/install-cypress)されるので、自動化タスクのためにオペレーティングシステムを利用することができる。これにより、[スクリーンショットの取得や動画の撮影](/app/guides/screenshots-and-videos)、一般的な [ファイルシステムの操作](/api/commands/exec)や、[ネットワークの操作](/api/commands/request)などのタスクを実行できるようになる。
+
+### ネイティブアクセス
+
+Cypressはアプリケーションの中で動作するので、すべてのオブジェクトにネイティブにアクセスが可能だ。
+それが、`ウィンドウ`、`ドキュメント`、DOM要素、アプリケーションインスタンス、関数、タイマー、サービスワーカーなどCypressのテストでアクセスが可能だ。
+
+例えば、以下が可能だ：
+
+- ブラウザ、あるいはアプリケーションの関数を[スタブ](/api/commands/stub)してテストケースで必要な振る舞いを強制することができる。
+- データストアを公開して、プログラム的にアプリケーションの状態をテストコードから直接変更することができる。
+- サーバに空のレスポンスを送信させることにより、「空のビュー」のようなエッジケースをテストすることができる。
+- レスポンスのステータスコードを500に変更することにより、サーバ上でアプリケーションがどのようにエラーを返すかをテストすることができる。
+- hidden要素を無理やり表示するなど、DOM要素を直接変更することができる。
+- サードパーティのプラグインをプログラム的に使う。複数選択、自動補完、ドロップダウン、ツリービューやカレンダーなどの複雑なUIウィジェットに煩わされる代わりにテストコードから直接メソッドを呼び出してそれらを制御することができる。
+- テストの際、[アプリケーションコードが実行される_前に_、Google Analytics がロードされないようにする](/app/references/configuration#blockHosts)。
+- アプリケーションが新しいページに遷移するたび、あるいはアプリケーションがアンロードを開始するたびに同期通知を受け取る。
+- [先に進める、あるいは後ろに戻すことにより時間を制御する](/api/commands/clock)ことにより、テストで必要な時間を待たずに、タイマーあるいはポーリングを自動で発火させる。
+- アプリケーションに応答する独自のイベントリスナーを追加する。アプリケーションコードを更新して、Cypressでのテスト時に異なる振る舞いをさせることができる。Cypress内からWebSocketメッセージを制御したり、条件付きでサードパーティスクリプトをロードしたり、アプリケーション上で関数を直接呼出すことができる。
+- [コンポーネントテスト](/app/component-testing/get-started)では、Cypressはブラウザベースであり、コンポーネントの機能だけでなく、スタイルや外観もテストすることができる。コンポーネントの動作を視覚的に確認して、アプリ内でコンポーネントと通信をすることができる。
+
+### スクリーンショット
+
+Cypressでは [`cy.session()`](/api/commands/session)を使ってブラウザコンテキストをキャッシュすることができる。
+これは、ユーザとして、テストスイート全体に対して、認証を１回実行して、各テストでは、保存されたセッションをリストアするだけでよい、ということだ。
+つまり、ログインページにアクセスし、ユーザ名とパスワードを入力し、実行するすべてのテストに対し、ページがロードされたり、
+リダイレクトされるのを待つ必要がない、ということだ。これは、[`cy.session()`](/api/commands/session)と、必要に応じて[`cy.origin()`](/api/commands/origin)を使って１回で実行できる。
+
+### 耐フレーク性
+
+Cypressは、アプリケーションで発生するすべてのことを同時に認識し、理解する。これは、ページがロードされた瞬間に通知され、
+ページがアンロードされた瞬間に通知される。Cypressはある要素がどれぐらいの速さでアニメーションされているかを認識していて、
+[アニメーションが停止されるのを待つ](/app/core-concepts/interacting-with-elements#Animations)。
+加えて、[自動的に要素が表示されるのを待ち](/app/core-concepts/interacting-with-elements#Visibility)、
+[有効になるの](/app/core-concepts/interacting-with-elements#Disability)を待ち、
+[カバーが停止される](/app/core-concepts/interacting-with-elements#Covering)のを待つ。
+ページが遷移し始めると、Cypressは、継続するページが完全にロードされるまでコマンド実行を中断する。
+また、Cypressに特定のネットワークリクエストが完了するのを[待つ](/api/commands/wait)ように指示することもできる。
+
+### デバッグ容易性
+
+Cypress は何よりも使いやすさを追求している。
+
+- Cypressがテストに失敗した正確な理由を説明する何百ものカスタムエラーメッセージがある。
+- コマンドの実行、アサーション、ネットワークリクエスト、スパイ、スタブ、ページロード、あるいはURL の変更を視覚的に表示する豊富な UI がある。
+- Cypressアプリはアプリケーションのスナップショットを取り、コマンドが実行されたときの状態にタイムトラベルできるようにする。
+- テストの実行中にデベロッパーツールを使って、すべてのコンソールメッセージ、あるいはネットワークリクエストを確認することができる。要素を調べて、仕様、あるいはアプリケーションコードでデバッガステートメントを使うことができ、これには使い慣れたどんなツールでも使うことができる。これにより、すべてのテストと開発を同時に行うことができる。
+
+### トレードオフ
+
+Cypressには多くの新しい強力な機能があるが、これを可能にするために、我々がこれまで行ってきた重要なトレードオフもある。
+
+さらに詳しく知りたい場合は、このトピックに関する[完全なガイド](/app/references/trade-offs)を用意した。
+
+## 始めよう
+
+[Install Cypress](/app/get-started/install-cypress) so you can quickly see your first passing test within minutes for
+[End-to-end tests](/app/end-to-end-testing/writing-your-first-end-to-end-test) or
+[Component tests](/app/component-testing/get-started).
+
+## Cypress in the Real World
+
+<DocsImage
+  src="/img/app/get-started/real-world-app.png"
+  alt="Cypress Real World App"
+/>
+
+Cypress makes it quick and easy to start testing, and as you begin to test your
+app, **you'll often wonder if you're using best practices or scalable
+strategies**.
+
+{/* prettier-ignore */}
+To guide the way, the Cypress team has created the <Icon name="github" inline="true" contentType="rwa" />,
+a full stack example application that demonstrates testing with **Cypress in practical and realistic
+scenarios.**
+
+The RWA achieves full [code-coverage](/app/tooling/code-coverage) with
+end-to-end tests
+[across multiple browsers](/app/guides/cross-browser-testing) and
+[device sizes](/api/commands/viewport), but also includes
+[visual regression tests](/app/tooling/visual-testing), API tests, unit
+tests, and runs them all in an
+[efficient CI pipeline](https://cloud.cypress.io/projects/7s5okt). Use the RWA
+to **learn, experiment, tinker, and practice** web application testing with
+Cypress.
+
+The app is bundled with everything you need,
+[just clone the repository](https://github.com/cypress-io/cypress-realworld-app)
+and start testing.

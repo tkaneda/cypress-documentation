@@ -1,0 +1,120 @@
+---
+title: 'Cypressアプリを開こう:ステップバイステップガイド'
+description: 'Cypressでアプリを開いて、エンドツーエンドテストとコンポーネントテストを視覚的に確認、レビュー、デバッグしよう。'
+sidebar_label: アプリを開こう
+sidebar_position: 40
+---
+
+# アプリを開こう
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- Cypressアプリの開き方
+- Cypressを開くためにnpmスクリプトを追加する方法
+- テストのタイプを選択する、設定をセットアップする、Cypressでブラウザを起動する方法
+:::
+
+## `cypress open`
+
+**プロジェクトルート**から、使っている依存するパッケージマネージャ( npm,Yarn,あるいはpnpm)に従って下記のコマンドの１つを使って、Cypressをオープンすることができる:
+
+<CypressOpenCommands />
+
+しばらくすると、Cypressラウンチパッドが開く。
+
+### npmスクリプトを追加する
+
+毎回Cypress実行可能ファイルへのフルパスを書き出すのは悪いことではないが、Cypressコマンドを`package.json`ファイルの`scripts` フィールドに追加する方がもっと簡単で、明確だ。
+
+```javascript
+{
+  "scripts": {
+    "cy:open": "cypress open"
+  }
+}
+```
+
+これで、下記のようにプロジェクトルートからコマンドを起動できる:
+
+```shell
+npm run cy:open
+```
+
+そして、Cypress は正しくオープンされる。
+
+:::caution
+
+<strong>ベストプラクティス</strong>
+
+特に、パッケージマネージャとしてYarnを使う場合、スクリプトの正確な名前として`cypress`を使わないこと。Cypressバイナリでコマンドを実行する（例：`yarn cypress verify`)場合、Yarnは同じ名前のスクリプトを参照し、[Cypress CLI コマンド](/app/references/command-line)が期待通りに動作しない場合がある。代わりに、`cy:open`や`cy:run`などの説明的であいまいでないスクリプト名を使うこと。
+
+:::
+
+### CLIツール
+
+`npm`を介してCypressをインストールすると、他の多数のCLIコマンドにもアクセスできるようになる。さらに、Cypressは、Node スクリプトにインポート可能な完全にベイク処理されたJavaScriptライブラリでもある。
+
+[CLIの詳細については、こちら](/app/references/command-line)を参照してほしい。
+
+## ラウンチパッド
+
+<DocsImage
+  src="/img/app/core-concepts/open-mode/the-launchpad.png"
+  alt="The Launchpad window"
+/>
+
+Cypressが開くと、テストの旅はLaunchpadで始まる。その役目は最初のテストの作成を開始する前に、完了する必要がある決定と設定タスクをガイドすることだ。
+
+Cypressを初めて使う場合、下記のステップを順番に実行してほしい。
+
+### テストタイプを選択する
+
+<DocsImage
+  src="/img/app/get-started/open-the-app/choose-testing-type.png"
+  alt="The Launchpad test type selector"
+/>
+
+Launchpadは、最初にあなたの最大の意思決定を表示している。どのタイプのテストを行うべきなのか？
+[E2Eテスト](/app/core-concepts/testing-types#What-is-E2E-Testing)では、
+アプリケーション全体を実行し、ページに訪れて、それらをテストするか？あるいは、
+[コンポーネントテスト](/app/core-concepts/testing-types#What-is-Component-Testing)では、
+アプリの個々のコンポーネントをマウントして、それらを分離してテストするか？
+
+この重要な意思決定の背後については、
+[テストのタイプ](/app/core-concepts/testing-types)を参照してほしい。
+あるいは、どのタイプが必要なのか、あるいは単にテストの旅を続けたいだけの場合、
+今のところ、**E2E**を選んでおくとよい。あとでいつでも変更できるので!
+
+### 素早い設定
+
+<DocsImage
+  src="/img/app/get-started/open-the-app/scaffolded-files.png"
+  alt="The Launchpad scaffolded files list"
+/>
+
+次のステップでは、Launchpad が選択したテストタイプに適切な一連の設定ファイルを作成して、
+変更内容がリストアップされて、確認できるようになる。
+生成された設定に関するさらなる詳細については、
+[Cypress 設定リファレンス](/app/references/configuration)を参照するか、
+あるいは下にスクロールして、"Continue" をクリックしてほしい。
+
+### ブラウザを起動する
+
+<DocsImage
+  src="/img/app/get-started/open-the-app/select-browser.png"
+  alt="The Launchpad browser selector"
+/>
+
+最後に、Cypressがシステム上で検出した互換性のあるブラウザのリストが表示される。
+ここでのオプションの詳細については、
+[ブラウザの起動に関するガイド](/app/references/launching-browsers)を参照してほしい。
+繰り返すが、いつでも好きな時にブラウザを切り替えることができるので、あまり気にしないでほしい。
+さあ、**スタートボタンをクリックしよう!**
+
+## 次のステップ
+
+テストする時間だ！
+[E2Eテストで始めるのを選んだのであれば、こちら](/app/end-to-end-testing/writing-your-first-end-to-end-test)へ。または、
+[コンポーネントテストを試すのであれば、こちら](/app/component-testing/get-started)へ。

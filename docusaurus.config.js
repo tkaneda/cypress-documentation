@@ -30,7 +30,15 @@ const config = {
   // to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'ja'],
+    localeConfigs: {
+      en: {
+        htmlLang: 'en-GB',
+      },
+      ja: {
+        htmlLang: 'ja-JP',
+      },
+    },
   },
 
   presets: [
@@ -121,6 +129,10 @@ const config = {
           srcDark: '/img/logo/cypress-logo-dark.svg',
         },
         items: [
+	  {
+	    type: 'localeDropdown',
+	    position: 'left',
+	  },
           {
             to: '/app/get-started/why-cypress',
             label: 'App',

@@ -1,0 +1,211 @@
+---
+title: React コンポーネントテスト
+sidebar_position: 10
+sidebar_label: 概観
+---
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- Reactでのコンポーネントテストのセットアップ方法
+- 様々な、Reactフレームワークとバンドルを用いたCypressの使い方
+
+:::
+
+## フレームワークのサポート
+
+Cypressのコンポーネントテストでは現在、下記のフレームワークを用いたReact 16以降をサポートしている:
+
+- [Reactアプリを作る](#Create-React-App-CRA)
+- [Next.js](#Nextjs)
+- [Viteを用いたReact](#React-with-Vite)
+- [Webpackを用いたReact](#React-with-Webpack)
+
+## チュートリアル
+
+コンポーネントテストをプロジェクトに追加するステップバイステップチュートリアルと最初のテストの作成方法に関して、
+[入門ガイド](/app/component-testing/get-started) にアクセスしてほしい。
+
+## インストール
+
+ReactでCypress のコンポーネントテストをセットアップして実行するには、プロジェクトにCypressをインストールする。
+
+<CypressInstallCommands />
+
+Cypress を開く:
+
+<CypressOpenCommands />
+
+<DocsImage
+  src="/img/app/component-testing/select-test-type.jpg"
+  caption="Choose Component Testing"
+/>
+
+Cypressランチパッドがプロジェクトの構成をガイドしてくれる。
+
+:::info
+
+コンポーネントテストの作成方法についてのステップバイステップガイドがあるので、
+[入門](/app/component-testing/get-started)ガイドを参照してほしい。
+
+使い方とサンプルについては、
+[Reactサンプル](/app/component-testing/react/examples)ガイドを参照のこと。
+
+:::
+
+## フレームワーク構成
+
+Cypressコンポーネントテストは
+[React アプリを作成する](https://create-react-app.dev/)、
+[Next.js](https://nextjs.org/)、
+[Vite](https://vitejs.dev/)、およびカスタムの
+[Webpack](https://webpack.js.org/)の設定を使ってそのままで動く。
+Cypressはセットアップ中にこれらのフレームワークの１つを自動的に検出し、それを適切に構成する。
+下記の例は、参照目的のためのものだ。
+
+### React アプリを作成する(CRA)
+
+CypressコンポーネントテストはCRA 4以降で動作する。
+
+#### CRAの構成
+
+:::cypress-config-example
+
+```ts
+{
+  component: {
+    devServer: {
+      framework: 'create-react-app',
+      bundler: 'webpack',
+    },
+  },
+}
+```
+
+:::
+
+#### CRAのサンプル
+
+- [JavaScriptを用いたCRA4](https://github.com/cypress-io/cypress-component-testing-apps/tree/main/react-cra4-js)
+- [TypeScriptを用いたCRA5](https://github.com/cypress-io/cypress-component-testing-apps/tree/main/react-cra5-ts)
+
+### Next.js
+
+Cypressコンポーネントテストは Next.js 11以降で動作する。
+
+#### Next.js の構成
+
+:::cypress-config-example
+
+```ts
+{
+  component: {
+    devServer: {
+      framework: 'next',
+      bundler: 'webpack',
+    },
+  },
+}
+```
+
+:::
+
+#### Next.jsに関する注意事項
+
+コンポーネントテストでNext.js[ページ](https://nextjs.org/docs/basic-features/pages)をテストする場合、検討すべき特有の注意事項がいくつかある。
+
+ページコンポーネントには追加のロジックを`getServerSideProps`や`getStaticProps`メソッドに持たせることができる。
+これらのメソッドはサーバ上で実行されるだけなので、コンポーネントテスト内で実行させることができない。
+コンポーネントテスト内でページをテストしようとすると、ページに渡されるpropsが未定義になる。
+
+コンポーネントテストで、ページコンポーネントにpropsを直接渡すこともできるが、これらのサーバサイドメソッドはテストされないままになる。しかしながら、エンドツーエンドテストはページ全体が実行、およびテストされる。
+
+このため、Next.jsページでは、コンポーネントテストよりもE2Eテストを使って、Next.jsアプリ内の個々のコンポーネントに対してコンポーネントテストを行うことをお勧めする。
+
+#### Next.jsアプリのサンプル
+
+- [TypeScriptを使ったNext.js 13](https://github.com/cypress-io/cypress-component-testing-apps/tree/main/react-next13-ts)
+
+### Viteを用いたReact
+
+Cypressコンポーネントテストは,Vite 2以降をバンドラーとして使うReactアプリで動作する。
+
+#### Vite の構成
+
+:::cypress-config-example
+
+```ts
+import customViteConfig from './customConfig'
+```
+
+```ts
+{
+  component: {
+    devServer: {
+      framework: 'react',
+      bundler: 'vite',
+      // optionally pass in vite config
+      viteConfig: customViteConfig,
+      // or a function - the result is merged with
+      // any `vite.config` file that is detected
+      viteConfig: async () => {
+        // ... do things ...
+        const modifiedConfig = await injectCustomConfig(baseConfig)
+        return modifiedConfig
+      },
+    },
+  },
+}
+```
+
+:::
+
+#### React Viteアプリのサンプル
+
+- [React Viteアプリのサンプル](https://github.com/cypress-io/cypress-component-testing-apps/tree/main/react-vite-ts)
+
+### Webpackを用いたReact
+
+CypressコンポーネントテストはバンドラーとしてWebpack 4以降を用いたReactアプリで動作する。
+
+#### Webpackの構成
+
+:::cypress-config-example
+
+```ts
+import webpackConfig from './webpack.config'
+```
+
+```ts
+{
+  component: {
+    devServer: {
+      framework: 'react',
+      bundler: 'webpack',
+      // optionally pass in webpack config
+      webpackConfig,
+      // or a function - the result is merged with any
+      // webpack.config that is found
+      webpackConfig: async () => {
+        // ... do things ...
+        const modifiedConfig = await injectCustomConfig(baseConfig)
+        return modifiedConfig
+      },
+    },
+  },
+}
+```
+
+:::
+
+webpackの構成を用意しない場合、Cypressはそれを推測しようとする。Cypressが推測できなかった場合、あるいは構成に変更を加えたい場合、`webpackConfig`オプションを介してそれを指定することができる。
+
+#### React Webpackアプリのサンプル
+
+- [JavaScriptを使ったReact Webpack 5](https://github.com/cypress-io/cypress-component-testing-apps/tree/main/react-webpack5-js)
+
+## コミュニティリソース
+
+- [Cypressコンポーネントテスト駆動設計](https://muratkerem.gitbook.io/cctdd/)
+- [Cypress Reactコンポーネントテストサンプル](https://github.com/muratkeremozcan/cypress-react-component-test-examples)

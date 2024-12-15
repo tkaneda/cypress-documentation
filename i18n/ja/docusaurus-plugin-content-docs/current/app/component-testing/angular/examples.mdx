@@ -1,0 +1,429 @@
+---
+title: Angularサンプル
+sidebar_position: 30
+sidebar_label: サンプル
+---
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- Angularコンポーネントのマウント方法
+- Angularコンポーネントへのデータの渡し方
+- Angularコンポーネントの複数シナリオのテストの方法
+- Angularシグナルのテストの方法
+- Angularのための`thecy.mount()`のカスタマイズ方法
+
+:::
+
+## コンポーネントをマウントする
+
+### `cy.mount()`を使う
+
+`cy.mount()`を使ってコンポーネントをマウントするには、コンポーネントをインポートして、それをメソッドに渡す:
+
+```ts
+import { StepperComponent } from './stepper.component'
+
+it('mounts', () => {
+  cy.mount(StepperComponent)
+})
+```
+
+### コンポーネントへデータを渡す
+
+オプションにある
+[componentProperties](/app/component-testing/angular/api#MountConfig)
+を設定することで、インプットとアウトプットをコンポーネントへ渡すことができる。
+
+```ts
+cy.mount(StepperComponent, {
+  componentProperties: {
+    count: 100,
+    change: new EventEmitter(),
+  },
+})
+```
+
+### イベントハンドラをテストする
+
+Cypress[スパイ](/app/guides/stubs-spies-and-clocks#Spies)
+をイベントプロップに渡して、それが呼び出されたことを検証する:
+
+```ts
+it('clicking + fires a change event with the incremented value', () => {
+  cy.mount(StepperComponent, {
+    componentProperties: {
+      change: createOutputSpy('changeSpy'),
+    },
+  })
+  cy.get('[data-cy=increment]').click()
+  cy.get('@changeSpy').should('have.been.calledWith', 1)
+})
+```
+
+### Imports/Declarations/Providers
+
+コンポーネントを問題なくマウントするために、追加で`imports`、`declarations`もしくは、`provideres`をセットアップする必要がある場合、オプションで設定することができる(アプリ内の`ngModule`内でセットアップするのと同様):
+
+```ts
+cy.mount(ComponentThatFetchesData, {
+  imports: [HttpClientModule],
+  declarations: [ButtonComponent],
+  providers: [DataService],
+})
+```
+
+テスト毎にこのボイラープレートを繰り返すのを回避するために、カスタムの`cy.mount()`コマンド内で一般的なオプションをセットアップするには、
+[デフォルトのDeclarations、Providers、および Imports](/app/component-testing/angular/examples#Default-Declarations-Providers-or-Imports)を参照してほしい。
+
+### Standaloneを使う
+
+[スタンドアロンコンポーネント](https://angular.io/guide/standalone-components)
+はサポートされるだけでなく、テストを書くのに最も簡単なコンポーネントである。
+スタンドアロンコンポーネントは、その[`@Component()`](https://angular.io/api/core/Component)デコレータを介してコンパイルするために必要なすべてをAngularコンパイラに提供する。
+これはつまり、ほとんどの場合、`imports`、`decorators`、`providers` を用意せずともスタンドアロンコンポーネントはマウントすることができることを意味する。マウントは下記のようにシンプルになる:
+
+```ts
+cy.mount(MyStandaloneComponent)
+```
+
+### Angularテンプレート構文を使う
+
+`cy.mount()`メソッドもコンポーネントをマウントする際、Angularテンプレート構文をサポートする。開発者の中には、オブジェクトベースのマウントスタイルよりもこのアプローチを好むものもいる。
+
+```ts
+cy.mount(`<app-stepper [count]="100"></app-stepper>`, {
+  declarations: [StepperComponent],
+})
+```
+
+> テンプレート構文を使う場合、コンポーネントをオプションパラメータの宣言に追加する必要がある。
+
+イベントエミッタースパイを使う場合は下記の通り:
+
+```ts
+cy.mount('<app-button (click)="onClick.emit($event)">Click me</app-button>', {
+  declarations: [ButtonComponent]
+  componentProperties: {
+    onClick: createOutputSpy('onClickSpy'),
+  },
+})
+cy.get('button').click();
+cy.get('@onClickSpy').should('have.been.called');
+```
+
+### コンポーネントインスタンスにアクセスする
+
+テストでコンポーネントインスタンスに直接アクセスしたい場合がある。そのためには、`.then()`を使うと、`cy.mount()`コマンドから生成されたサブジェクトを操作できるようになる。この場合、マウントによりレンダリングされたコンポーネントとフィクスチャを含むオブジェクトが生成される。
+
+下記の例では、コンポーネントを使って変更イベントエミッタを直接スパイする。
+
+```ts
+it('clicking + fires a change event with the incremented value', () => {
+  cy.mount(
+    '<app-stepper count="100" (change)="change.emit($event)"></app-stepper>',
+    {
+      componentProperties: { change: new EventEmitter() },
+      declarations: [StepperComponent],
+    }
+  ).then((wrapper) => {
+    console.log({ wrapper })
+    cy.spy(wrapper.component.change, 'emit').as('changeSpy')
+    return cy.wrap(wrapper).as('angular')
+  })
+  cy.get(incrementSelector).click()
+  cy.get('@changeSpy').should('have.been.calledWith', 101)
+})
+```
+
+### `createOutputSpy()`を使う
+
+イベントエミッターをより簡単にスパイするために、`EventEmitter`を自動的に生成し、その`.emit()`メソッドでスパイをセットアップするのに使うことができる`createOutputSpy()`というユーティリティ関数がある。下記のように使うことができる:
+
+```ts
+import { createOutputSpy } from 'cypress/angular'
+
+it('clicking + fires a change event with the incremented value', () => {
+  // Arrange
+  cy.mount('<app-stepper (change)="change.emit($event)"></app-stepper>', {
+    declarations: [StepperComponent],
+    componentProperties: {
+      change: createOutputSpy<boolean>('changeSpy'),
+    },
+  })
+  cy.get(incrementSelector).click()
+  cy.get('@changeSpy').should('have.been.called')
+})
+```
+
+### `autoSpyOutputs`を使う
+
+コンポーネントのアウトプットごとに`cy.spy()`を繰り返し作成していることに気づくことがある。
+このため、これを処理するための簡単なメカニズムを用意した。この機能は、`autoSpyOutputs`フラグを`MountConfig`に渡すことにより、オンにすることができる。
+コンポーネントがマウントされた後、`@Output()`プロパティ名+`Spy`を使って生成されたスパイ各々にアクセスできるようになる。なので、変更プロパティには`cy.get('@changeSpy')`のエイリアスを介してアクセスすることができる。
+
+```ts
+it('clicking + fires a change event with the incremented value', () => {
+  cy.mount(StepperComponent, {
+    autoSpyOutputs: true,
+    componentProperties: {
+      count: 100,
+    },
+  })
+  cy.get(incrementSelector).click()
+  cy.get('@changeSpy').should('have.been.calledWith', 101)
+})
+```
+
+:::caution
+
+`autoSpyOutput`フラグは、コンポーネントを`mount`関数に渡した場合にしか機能しない。現在、テンプレート構文では機能しない。
+
+:::
+
+:::caution
+
+`autoSpyOutput`は実験的な機能であり、将来、削除または変更される可能性がある。
+
+:::
+
+### シグナル
+
+Angularバージョン[17.1](https://github.com/angular/angular/blob/main/CHANGELOG.md#1710-2024-01-17)と[17.2](https://github.com/angular/angular/blob/main/CHANGELOG.md#1720-2024-02-14)のリリースにより、[input](https://github.com/angular/angular/pull/53521)シグナルと[model](https://github.com/angular/angular/pull/54252)シグナルが `@angular]/core` APIに導入された。シグナルがコアAPIに新しいメソッドとタイプを導入したので、Cypress は新しいテストハーネスである、`@cypress/angular-signals`を導入した。
+
+基本的なシグナルはAngular `16`で導入されたが、このテストハーネスは Angular `17.2`以上が必要である。
+
+下記の例では、下記に示すような`TestComponent`と呼ばれる非常に単純なコンポーネントを使っている:
+
+```typescript
+// app/components/test-component.component.ts
+import { Component, input, model } from '@angular/core'
+
+@Component({
+  selector: 'test-component',
+  templateUrl: './test-component.component.html',
+  standalone: true,
+})
+export class TestComponent {
+  title = input.required<string>()
+  count = model<number>(1)
+}
+```
+
+```html
+<!-- app/components/test-component.component.html -->
+<p data-cy="test-component-title-display">{{ title() }}</p>
+<p data-cy="test-component-count-display">{{ count() }}</p>
+<button data-cy="test-component-count-incr" (click)="count.set(count() + 1)">
+  Increase
+</button>
+<button data-cy="test-component-count-decr" (click)="count.set(count() - 1)">
+  Decrease
+</button>
+```
+
+#### シグナルをテストする
+
+Cypressコンポーネントテストを使ってシグナルをテストするには、2つの方法がある:
+
+1. [推測されるジェネリック型](#Inferred-Generic-Type)
+2. [書き込み可能なシグナル](#Writable-Signal)
+
+##### 推測されるジェネリック型
+
+下記の例では、`TestComponent`に渡されるタイトルプロップは文字列だ。
+文字列は`TestComponent`で定義した`input()`シグナルのジェネリック型である。
+
+```typescript
+let titleProp = 'Test Component'
+cy.mount(TestComponent, {
+  componentProperties: {
+    title: titleProp,
+  },
+})
+
+cy.get('[data-cy="test-component-title-display"]').should(
+  'have.text',
+  'Test Component'
+)
+```
+
+:::info
+
+内部的には、Cypressはジェネリックの値を書き込み可能な`signal()`にラップして、`prop`にマージする。言い換えると、この例にある`@cypress/angular-signals`テストハーネス下記のようになる:
+
+```typescript
+cy.mount(TestComponent, {
+  componentProperties: {
+    title: signal('Test Component'),
+  },
+})
+```
+
+:::
+
+これは任意のシグナルに対して機能する。下記に示されているのは、`TestComponent`でみられるようなジェネリック型`number`を使って`model()`シグナルをテストする例である。
+
+```ts
+cy.mount(TestComponent, {
+  componentProperties: {
+    title: 'Test Component',
+    count: 3,
+  },
+})
+
+cy.get('[data-cy="test-component-count-display"]').should('have.text', '3')
+```
+
+##### 書き込み可能なシグナル
+
+推論されたジェネリック型は殆どのテストケースで非常にうまく機能する。しかしながら、それらは、`prop`が渡された後で、コンポーネント内の`prop`を更新することができない。このユースケースでは、書き込み可能な`signal()`を使う必要がある。
+
+これにより、`input()`シグナルの一方向のデータバインディングをテストできるようになる。
+
+```typescript
+const myTitlePropAsSignal = signal('Test Component')
+cy.mount(TestComponent, {
+  componentProperties: {
+    title: myTitlePropAsSignal,
+  },
+})
+
+cy.get('[data-cy="test-component-title-display"]').should(
+  'have.text',
+  'Test Component'
+)
+cy.then(() => {
+  // now set the input() through a signal to update the one-way binding
+  myTitlePropAsSignal.set('FooBar')
+})
+
+cy.get('[data-cy="test-component-title-display"]').should('have.text', 'FooBar')
+```
+
+そして、`model()`シグナルの双方向データバインディングだ。
+
+```typescript
+let count = signal(5)
+cy.mount(TestComponent, {
+  componentProperties: {
+    title: 'Test Component',
+    count,
+  },
+})
+
+cy.then(() => {
+  // now set the model() through a signal to update the binding in the component
+  count.set(8)
+})
+
+cy.get('[data-cy="test-component-count-display"]').should('have.text', '8')
+
+// some action occurs that changes the count to 9 inside the component, which updates the binding in our test
+cy.get('[data-cy="test-component-count-incr"]').click()
+cy.get('[data-cy="test-component-count-display"]').should('have.text', '9')
+cy.then(() => {
+  expect(count()).to.equal(9)
+})
+```
+
+##### スパイを変更する
+
+Cypressは`input()`シグナルからのスパイを介して変更を伝播しない。
+
+`model()`や`signal()`などの書き込み可能なシグナルの場合、Cypressは、`prop`の名前の末尾に `Change`がついた出力スパイが作成された場合、変更を伝播させる。
+下記の例では、`countChange`は`count`シグナルへの変更をスパイする。
+
+```typescript
+cy.mount(TestComponent, {
+  componentProperties: {
+    title: 'Test Component',
+    count: 4,
+    // @ts-expect-error
+    countChange: createOutputSpy('countChange'),
+  },
+})
+
+// some action occurs that changes the count
+cy.get('[data-cy="test-component-count-incr"]').click()
+
+cy.get('@countChange').should('have.been.called')
+```
+
+`autoSpyOutputs: true`が設定されている場合、これらのスパイは自動的に生成される。
+この場合のサフィックスは`ChangeSpy`になる。
+
+## カスタムマウントコマンド
+
+### `cy.mount()`をカスタマイズする
+
+デフォルトでは、`cy.mount()`は単純な`mount()`へのパススルーであるが、しかしながら、必要に応じて、`cy.mount()`をカスタマイズすることができる。例えば、マウント中に繰り返し処理を行う場合があるかもしれない。ボイラープレートを減らすには、カスタムマウントコマンドを作成すると便利だ。
+
+### デフォルトの宣言、プロバイダ、インポート
+
+個々のテストに大量の宣言、プロバイダ、あるいはインポートを登録していることに気づいた場合、
+カスタムの`cy.mount()`コマンド内ですべてを実行することをおススメする。
+すべてのテストのオーバーヘッドは通常最小限であり、スペックコードをきれいに保つのに役に立つ。
+
+下記は、いくつかのデフォルトコンポーネント宣言を登録しながら、`config`パラメータを介して追加の宣言を渡すことができるサンプルだ。同じパターンをプロバイダやモジュールのインポートにも適用することができる。
+
+```ts title=support/component.ts
+import { Type } from '@angular/core'
+import { mount, MountConfig } from 'cypress/angular'
+import { ButtonComponent } from 'src/app/button/button.component'
+import { CardComponent } from 'src/app/card/card.component'
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      mount: typeof customMount
+    }
+  }
+}
+
+const declarations = [ButtonComponent, CardComponent]
+
+function customMount<T>(component: string | Type<T>, config?: MountConfig<T>) {
+  if (!config) {
+    config = { declarations }
+  } else {
+    config.declarations = [...(config?.declarations || []), ...declarations]
+  }
+  return mount<T>(component, config)
+}
+
+Cypress.Commands.add('mount', customMount)
+```
+
+このカスタムマウントコマンドを使うと、`ButtonComponent`と`CardComponent`を宣言として各`cy.mount()`呼び出しに手動で渡すのをスキップできる。
+
+### autoSpyOutputs
+
+下記は、マウントされたコンポーネントすべてで、`autoSpyOutputs`をデフォルト設定する例だ:
+
+```ts title=support/component.ts
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      mount: typeof mount
+    }
+  }
+}
+
+Cypress.Commands.add(
+  'mount',
+  (component: Type<unknown> | string, config: MountConfig<T>) => {
+    return mount(component, {
+      ...config,
+      autoSpyOutputs: true,
+    })
+  }
+)
+```
+
+:::caution
+
+`autoSpyOutput`フラグはコンポーネントを`mount`関数に渡す場合にのみ機能する。現在テンプレート構文では動かない。
+
+:::

@@ -1,0 +1,134 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.app.category.Get Started": {
+    "message": "Get Started",
+    "description": "The label for category Get Started in sidebar app"
+  },
+  "sidebar.app.category.End-to-End Testing": {
+    "message": "End-to-End Testing",
+    "description": "The label for category End-to-End Testing in sidebar app"
+  },
+  "sidebar.app.category.Component Testing": {
+    "message": "Component Testing",
+    "description": "The label for category Component Testing in sidebar app"
+  },
+  "sidebar.app.category.React": {
+    "message": "React",
+    "description": "The label for category React in sidebar app"
+  },
+  "sidebar.app.category.Angular": {
+    "message": "Angular",
+    "description": "The label for category Angular in sidebar app"
+  },
+  "sidebar.app.category.Vue": {
+    "message": "Vue",
+    "description": "The label for category Vue in sidebar app"
+  },
+  "sidebar.app.category.Svelte": {
+    "message": "Svelte",
+    "description": "The label for category Svelte in sidebar app"
+  },
+  "sidebar.app.category.Core Concepts": {
+    "message": "Core Concepts",
+    "description": "The label for category Core Concepts in sidebar app"
+  },
+  "sidebar.app.category.Guides": {
+    "message": "Guides",
+    "description": "The label for category Guides in sidebar app"
+  },
+  "sidebar.app.category.Authentication Testing": {
+    "message": "Authentication Testing",
+    "description": "The label for category Authentication Testing in sidebar app"
+  },
+  "sidebar.app.category.Migrating to Cypress": {
+    "message": "Migrating to Cypress",
+    "description": "The label for category Migrating to Cypress in sidebar app"
+  },
+  "sidebar.app.category.Continuous Integration": {
+    "message": "Continuous Integration",
+    "description": "The label for category Continuous Integration in sidebar app"
+  },
+  "sidebar.app.category.Tooling": {
+    "message": "Tooling",
+    "description": "The label for category Tooling in sidebar app"
+  },
+  "sidebar.app.category.Plugins": {
+    "message": "Plugins",
+    "description": "The label for category Plugins in sidebar app"
+  },
+  "sidebar.app.category.References": {
+    "message": "References",
+    "description": "The label for category References in sidebar app"
+  },
+  "sidebar.api.category.Commands": {
+    "message": "Commands",
+    "description": "The label for category Commands in sidebar api"
+  },
+  "sidebar.api.category.Cypress API": {
+    "message": "Cypress API",
+    "description": "The label for category Cypress API in sidebar api"
+  },
+  "sidebar.api.category.Utilities": {
+    "message": "Utilities",
+    "description": "The label for category Utilities in sidebar api"
+  },
+  "sidebar.api.category.Node Events": {
+    "message": "Node Events",
+    "description": "The label for category Node Events in sidebar api"
+  },
+  "sidebar.cloud.category.Get Started": {
+    "message": "Get Started",
+    "description": "The label for category Get Started in sidebar cloud"
+  },
+  "sidebar.cloud.category.Features": {
+    "message": "Features",
+    "description": "The label for category Features in sidebar cloud"
+  },
+  "sidebar.cloud.category.Smart Orchestration": {
+    "message": "Smart Orchestration",
+    "description": "The label for category Smart Orchestration in sidebar cloud"
+  },
+  "sidebar.cloud.category.Analytics": {
+    "message": "Analytics",
+    "description": "The label for category Analytics in sidebar cloud"
+  },
+  "sidebar.cloud.category.Integrations": {
+    "message": "Integrations",
+    "description": "The label for category Integrations in sidebar cloud"
+  },
+  "sidebar.cloud.category.Source Control": {
+    "message": "Source Control",
+    "description": "The label for category Source Control in sidebar cloud"
+  },
+  "sidebar.cloud.category.Account Management": {
+    "message": "Account Management",
+    "description": "The label for category Account Management in sidebar cloud"
+  },
+  "sidebar.ui-coverage.category.Get Started": {
+    "message": "Get Started",
+    "description": "The label for category Get Started in sidebar ui-coverage"
+  },
+  "sidebar.ui-coverage.category.Core Concepts": {
+    "message": "Core Concepts",
+    "description": "The label for category Core Concepts in sidebar ui-coverage"
+  },
+  "sidebar.ui-coverage.category.Configuration": {
+    "message": "Configuration",
+    "description": "The label for category Configuration in sidebar ui-coverage"
+  },
+  "sidebar.accessibility.category.Get Started": {
+    "message": "Get Started",
+    "description": "The label for category Get Started in sidebar accessibility"
+  },
+  "sidebar.accessibility.category.Core Concepts": {
+    "message": "Core Concepts",
+    "description": "The label for category Core Concepts in sidebar accessibility"
+  },
+  "sidebar.accessibility.category.Configuration": {
+    "message": "Configuration",
+    "description": "The label for category Configuration in sidebar accessibility"
+  }
+}

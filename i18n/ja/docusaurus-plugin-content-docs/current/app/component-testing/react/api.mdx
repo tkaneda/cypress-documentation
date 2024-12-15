@@ -1,0 +1,152 @@
+---
+title: React API
+sidebar_position: 40
+sidebar_label: API
+---
+
+## メソッド
+
+### mount
+
+```js
+// React 18
+import { mount } from 'cypress/react18'
+
+// React 16, 17
+import { mount } from 'cypress/react'
+```
+
+<table class="api-table table-list">
+  <tr>
+    <td>説明</td>
+    <td>ReactコンポーネントをDOMにマウントする。</td>
+  </tr>
+  <tr>
+    <td>シグネチャ</td>
+    <td>
+      mount(jsx: React.ReactNode, options?: MountOptions, rerenderKey?: string):
+      Cypress.Chainable&lt;MountReturn&gt;
+    </td>
+  </tr>
+  <tr>
+    <td>返り値</td>
+    <td>Cypress.Chainable&lt;MountReturn&gt;</td>
+  </tr>
+</table>
+
+<table class="api-table">
+  <caption>マウントパラメータ</caption>
+  <thead>
+    <td>名前</td>
+    <td>型</td>
+    <td>説明</td>
+  </thead>
+  <tr>
+    <td>jsx</td>
+    <td>React.JSX.Element</td>
+    <td>マウントするReactコンポーネント</td>
+  </tr>
+  <tr>
+    <td>オプション</td>
+    <td>MountOptions(オプション)</td>
+    <td>コンポーネントをマウントする際のオプション</td>
+  </tr>
+  <tr>
+    <td>rerenderKey</td>
+    <td>文字列型(オプション)</td>
+    <td>強制的に再レンダリングするためのキー</td>
+  </tr>
+</table>
+
+#### 例
+
+```jsx
+import { mount } from '@cypress/react'
+import { Stepper } from './Stepper'
+
+it('mounts', () => {
+  mount(<StepperComponent />)
+  cy.get('[data-cy=increment]').click()
+  cy.get('[data-cy=counter]').should('have.text', '1')
+}
+```
+
+### getContainerEl
+
+<table class="api-table">
+  <tr>
+    <td>説明</td>
+    <td>コンポーネントのマウントに用いられるルート要素を取得する</td>
+  </tr>
+  <tr>
+    <td>シグネチャ</td>
+    <td>() => HTMLElement</td>
+  </tr>
+  <tr>
+    <td>返り値</td>
+    <td>HTMLElement</td>
+  </tr>
+</table>
+
+## インタフェース
+
+### MountOptions
+
+<table class="api-table">
+  <caption>メンバ</caption>
+  <thead>
+    <td>名前</td>
+    <td>型</td>
+    <td>説明</td>
+  </thead>
+  <tr>
+    <td>alias</td>
+    <td>文字列型(オプション)</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>ReactDom</td>
+    <td>MountReactComponentOptions.ReactDom (オプション)</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>log</td>
+    <td>bool型(オプション)</td>
+    <td>Cypressコマンドログに、マウントコマンドをロギングする、デフォルトはtrue</td>
+  </tr>
+  <tr>
+    <td>strict</td>
+    <td>bool型(オプション)</td>
+    <td>
+      React <a href="https://reactjs.org/docs/strict-mode.html">strict モード</a>でコンポーネントをレンダリングする。子コンポーネントに対して追加のチェックと警告をアクティブ化する
+    </td>
+  </tr>
+</table>
+
+### MountReturn
+
+`mount`関数が取得する型
+
+<table class="api-table">
+  <caption>メンバ</caption>
+  <thead>
+    <td>名前</td>
+    <td>型</td>
+    <td>説明</td>
+  </thead>
+  <tr>
+    <td>component</td>
+    <td>React.ReactNode</td>
+    <td>
+      React <a href="https://reactjs.org/docs/strict-mode.html">strictモード</a>でコンポーネントをレンダリングする。子コンポーネントに対して追加のチェックと警告をアクティブ化する。
+    </td>
+  </tr>
+  <tr>
+    <td>rerender</td>
+    <td>
+      (component: React.ReactNode) =>
+      globalThis.Cypress.Chainable&lt;MountReturn&gt;
+    </td>
+    <td>レンダリングされたコンポーネント</td>
+  </tr>
+</table>

@@ -1,0 +1,224 @@
+---
+title: Reactサンプル
+sidebar_position: 30
+sidebar_label: サンプル
+---
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- React コンポーネントをマウントする方法
+- React コンポーネントへのデータの渡し方
+- イベントハンドラのテスト方法
+- React RouterとRedux向け`cy,mount()`のカスタマイズの方法
+
+:::
+
+## コンポーネントをマウントする
+
+### コンポーネントをマウントする
+
+コンポーネントをテストする第１歩はそれをマウントすることだ。
+これにより、コンポーネントがテストベッドにレンダリングされ、Cypress APIを使って、
+要素を選択し、それらをやり取りをし、アサーションを実行できるようになる。
+
+Reactコンポーネントをマウントするには、コンポーネントをspecにインポートして、
+コンポーネントを `cy.mount` コマンドに渡す:
+
+```js
+import { Stepper } from './stepper'
+
+it('mounts', () => {
+  cy.mount(<Stepper />)
+  //Stepper should have initial count of 0 (default)
+  cy.get('[data-cy=counter]').should('have.text', '0')
+})
+```
+
+### コンポーネントにデータを渡す
+
+`cy.mount()`に渡されたJSX上で設定することで、コンポーネントにpropsを渡すことができる:
+
+```ts
+it('mounts', () => {
+  cy.mount(<Stepper initial={100} />)
+  //Stepper should have initial count of 100
+  cy.get('[data-cy=counter]').should('have.text', '100')
+})
+```
+
+### イベントハンドラをテストする
+
+Cypress[スパイ](/app/guides/stubs-spies-and-clocks#Spies)をイベントプロップに渡してそれが呼び出されたかを検証する:
+
+```ts
+it('clicking + fires a change event with the incremented value', () => {
+  const onChangeSpy = cy.spy().as('onChangeSpy')
+  cy.mount(<Stepper onChange={onChangeSpy} />)
+  cy.get('[data-cy=increment]').click()
+  cy.get('@onChangeSpy').should('have.been.calledWith', 1)
+})
+```
+
+## カスタムマウントコンポーネント
+
+### `cy.mount()`をカスタマイズする
+
+デフォルトでは、`cy.mount()`は`mount()`への単純なパススルーだが、必要に応じて、`cy.mount()`をカスタマイズすることができる。
+例えば、Reactアプリで、プロバイダや、他のグローバルアプリレベルの設定を使っている場合、ここで設定することができる。
+
+下記にカスタムマウントコマンドのいくつかの使用例を示す。
+これらの例はサポートする必要のある他のほとんどのプロバイダに合わせて調整することができる。
+
+### Reactルータ
+
+フック、あるいは[React ルータ](https://reactrouter.com/)からのコンポーネントを使うコンポーネントがある場合、
+そのコンポーネントはReact Routerプロバイダにアクセスする必要がある。
+下記は、`MemoryRouter`を使って、コンポーネントをラップするサンプルのマウントコマンドである。
+
+<Tabs>
+<TabItem value="cypress/support/component.jsx">
+
+```jsx
+import { mount } from 'cypress/react'
+import { MemoryRouter } from 'react-router-dom'
+
+Cypress.Commands.add('mount', (component, options = {}) => {
+  const { routerProps = { initialEntries: ['/'] }, ...mountOptions } = options
+
+  const wrapped = <MemoryRouter {...routerProps}>{component}</MemoryRouter>
+
+  return mount(wrapped, mountOptions)
+})
+```
+
+</TabItem>
+<TabItem value="Typings">
+
+```ts
+import { MountOptions, MountReturn } from 'cypress/react'
+import { MemoryRouterProps } from 'react-router-dom'
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      /**
+       * Mounts a React node
+       * @param component React Node to mount
+       * @param options Additional options to pass into mount
+       */
+      mount(
+        component: React.ReactNode,
+        options?: MountOptions & { routerProps?: MemoryRouterProps }
+      ): Cypress.Chainable<MountReturn>
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+特定のシナリオをセットアップするには、オプションで`MemoryRouter`に渡される`props`を渡す。
+下記は、特定のルータを指す`initialEntries`でルータを初期化することにより、
+アクティブリンクに正しいクラスが適用されていることを確認するテストの例だ。
+
+```jsx
+import { Navigation } from './Navigation'
+
+it('home link should be active when url is "/"', () => {
+  // No need to pass in custom initialEntries as default url is '/'
+  cy.mount(<Navigation />)
+
+  cy.get('a').contains('Home').should('have.class', 'active')
+})
+
+it('login link should be active when url is "/login"', () => {
+  cy.mount(<Navigation />, {
+    routerProps: {
+      initialEntries: ['/login'],
+    },
+  })
+
+  cy.get('a').contains('Login').should('have.class', 'active')
+})
+```
+
+### Redux
+
+[Redux](https://react-redux.js.org/)ストアから状態あるいはアクションを消費するコンポーネントを使うには、Reduxプロバイダにコンポーネントをラップする`mount`コマンドを作成する:
+
+<Tabs>
+<TabItem value="cypress/support/component.jsx">
+
+```jsx
+import { mount } from 'cypress/react'
+import { Provider } from 'react-redux'
+import { getStore } from '../../src/store'
+
+Cypress.Commands.add('mount', (component, options = {}) => {
+  // Use the default store if one is not provided
+  const { reduxStore = getStore(), ...mountOptions } = options
+
+  const wrapped = <Provider store={reduxStore}>{component}</Provider>
+
+  return mount(wrapped, mountOptions)
+})
+```
+
+</TabItem>
+<TabItem value="Typings">
+
+```ts
+import { MountOptions, MountReturn } from 'cypress/react'
+import { EnhancedStore } from '@reduxjs/toolkit'
+import { RootState } from './src/StoreState'
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      /**
+       * Mounts a React node
+       * @param component React Node to mount
+       * @param options Additional options to pass into mount
+       */
+      mount(
+        component: React.ReactNode,
+        options?: MountOptions & { reduxStore?: EnhancedStore<RootState> }
+      ): Cypress.Chainable<MountReturn>
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+オプションパラメータにはすでにデータで初期化されたストアを指定することができる:
+
+```jsx
+import { getStore } from '../redux/store'
+import { setUser } from '../redux/userSlice'
+import { UserProfile } from './UserProfile'
+
+it('User profile should display user name', () => {
+  const user = { name: 'test person' }
+
+  // getStore is a factory method that creates a new store
+  const store = getStore()
+
+  // setUser is an action exported from the user slice
+  store.dispatch(setUser(user))
+
+  cy.mount(<UserProfile />, { reduxStore: store })
+
+  cy.get('div.name').should('have.text', user.name)
+})
+```
+
+:::info
+
+`getStore`メソッドは新しいReduxストアを初期化するファクトリメソッドだ。ストアへの変更が他のテストに影響を及ぼさないように、新しいテスト毎にストアを初期化することが重要だ。
+
+:::

@@ -1,0 +1,456 @@
+---
+title: '効果的なE2E: Cypressアプリテスト'
+sidebar_label: '自前のアプリをテストする'
+description: 'Cypressアプリテストガイドで効果的なエンドツーエンドテスト戦略を発見して、テストの習熟度をアップさせよう'
+sidebar_position: 20
+slug: /app/end-to-end-testing/testing-your-app
+---
+
+# 自前のアプリをテストする
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- サーバを開始して、Cypressを使ってアプリケーションをテストする方法
+- Cypress の設定方法
+- データのシーディング、サーバのスタブ方法、ログイン方法を含む、アプリケーションをテストする上での戦略
+  :::
+
+## <Icon name="terminal" /> ステップ1: サーバを起動する
+
+プロジェクトにはすでに、
+[Cypressのインストール](/app/get-started/install-cypress)と
+[Cypressをオープンする](/app/get-started/open-the-app)が無事終わっていると仮定して、
+まずやるべきことは、アプリケーションをホストするローカルの開発サーバを起動することだ。
+
+おそらく、**http://localhost:8080**のようになるはず。
+
+:::caution
+
+<strong>アンチパターン</strong>
+
+Cypressスクリプトからウェブサーバを起動しようとしないこと。詳細については、
+[ベストプラクティス](/app/core-concepts/best-practices#Web-Servers)を参照してほしい。
+
+:::
+
+### なぜローカルの開発サーバを起動するのか？
+
+なぜすでに本番環境にあるアプリケーションにアクセスするべきじゃないのか？と疑問に思っているかもしれない。
+
+すでにデプロイされているアプリケーションをテストすることは確かに可能ではあるが、
+それはCypressの**スイートスポット**ではない。
+
+Cypressは毎日のローカル開発のためのツールとして構築され、最適化されている。
+実際、Cypress を使い始めた後しばらくは、
+**すべての開発**をCypressで行うことですら有用であることがわかるだろう。
+
+究極的には、**テストと開発**を同時に行うことができるだけでなく、テストを「無料で」実施しながら、アプリケーションを**より迅速に**構築できるようになる。
+
+さらに、Cypressを使えば、**スタブネットワークリクエスト**などを実行できるので、有効なJSONレスポンスを返すサーバを必要とせずに、ウェブアプリケーションを構築することができる。
+
+最後になったが、すでに構築されたアプリケーションにテストを押し付けようとするのは、テストを書きながら構築するよりもはるかに難しい。最初からテストを書いていれば回避できたであろう一連の初期の課題、ハードルに遭遇する可能性がある。
+
+ローカルサーバに対してテストを行う上での、最後の、おそらく最も重要な理由は、**ローカルサーバを制御**できることにある。アプリケーションを本番環境で実行している場合、それを制御することはできない。
+
+開発環境でアプリケーションを実行している場合、下記のことが可能になる:
+
+- ショートカットする
+- 実行可能スクリプトの実行によるデータのシード
+- テスト環境固有のルーティングの公開
+- 自動化を困難にするセキュリティ機能を無効にする
+- サーバ／データベースの状態をリセットする
+
+そうは言っても、**両方の方法**を選択することも可能だ。
+
+多くのユーザはローカル開発サーバに対して_大部分の_統合テストを実行するが、デプロイされた本番アプリケーションに対してのみ実行される数少ない一連の**スモークテスト**を予約する。
+
+## <Icon name="globe" /> ステップ2: サーバにアクセスする
+
+サーバを起動したら、それにアクセスする。
+
+前のチュートリアルで作成された`spec.cy.js`ファイルを削除しよう。いまはもう不要だ。
+
+```shell
+rm cypress/e2e/spec.cy.js
+```
+
+`home_page.cy.js`という独自のスペックファイルを作成しよう。
+
+```shell
+touch cypress/e2e/home_page.cy.js
+```
+
+このファイルを作成したら、スペックファイルのリストに表示されるはずだ。
+
+<DocsImage
+  src="/img/app/get-started/e2e/v10/testing-your-app-home-page-spec.png"
+  alt="List of files including home_page.cy.js"
+  width="75%"
+/>
+
+ここで、サーバにアクセスするためのテストファイルに、下記のコードを追加する必要がある:
+
+```js
+describe('The Home Page', () => {
+  it('successfully loads', () => {
+    cy.visit('http://localhost:8080') // change URL to match your dev URL
+  })
+})
+```
+
+ここで`home_page.cy.js`ファイルをクリックするとCypressがブラウザをオープンする。
+
+サーバを起動し忘れてたら、下記のエラーになるはずだ。
+
+<!--
+To reproduce the following screenshot:
+it('successfully loads', () => {
+  cy.visit('https://localhost:8080')
+})
+-->
+
+<DocsImage
+  src="/img/app/get-started/e2e/v10/testing-your-app-visit-fail.png"
+  alt="Error in Cypress showing cy.visit failed"
+  width="75%"
+/>
+
+サーバをすでに起動していたら、アプリケーションがロードされ機能しているのがわかるはずだ。
+
+## <Icon name="cogs" /> ステップ3: Cypressを設定する
+
+先々のことを考えると、すべてのテストがアプリケーションの何らかのページにアクセスする必要があるので、このURLを頻繁にタイプすることになることにすぐに気づくだろう。幸いにも、Cypress にはこのための[設定オプション](/app/references/configuration)が用意されている。すぐにこれを活用しよう。
+
+[設定ファイル](/app/references/configuration)をオープンしよう。
+最初は空っぽだが、`baseUrl`オプションを追加しよう。
+
+:::cypress-config-example
+
+```ts
+{
+  e2e: {
+    baseUrl: 'http://localhost:8080'
+  }
+}
+```
+
+:::
+
+これにより、[`cy.vist()`](/api/commands/visit)と[`cy.request()`](/api/commands/request)コマンドにこの`baseUrl`が自動的に**プレフィクス**として追加される。
+
+:::info
+
+設定ファイルを変更するたびに、Cypress は自動的に再起動して、開いているブラウザをすべて強制終了する。これは正常な動作だ。スペックファイルを再度クリックとするとブラウザが再起動される。
+
+:::
+
+これで、相対パスにアクセスして、ホスト名とポート番号を省略できるようになった。
+
+```js
+describe('The Home Page', () => {
+  it('successfully loads', () => {
+    cy.visit('/')
+  })
+})
+```
+
+すばらしい！すべて、緑のままのはずだ。
+
+:::info
+
+<strong>設定オプション</strong>
+
+Cypressには、その動作をカスタマイズするために使用できる数多くの設定オプションが用意されている。テストがどこにあるか、デフォルトのタイムアウト時間、環境変数、どのレポーターを使うか、など。
+
+[設定](/app/references/configurationを参照してみてほしい。
+
+:::
+
+## テスト戦略
+
+アプリケーションのテストを書こうとしているが、アプリケーションについて知っているのは_あなた_だけなので、
+ここでお伝えできる具体的なアドバイスはあまりない。
+
+**何をテストするか、エッジケースとシームがどこにあるか、どのようなリグレッションに遭遇する可能性があるか、などは完全にあなた、アプリケーション、チーム次第だ。**
+
+とはいえ、昨今のウェブテストにはすべてのチームが経験するいくつかの問題があるので、ここでは、遭遇する可能性のある、一般的な状況に関する簡単なヒントを紹介する。
+
+### データをシードする
+
+アプリケーションがどのように構築されたかによっては、ウェブアプリケーションがサーバによって影響を受け、制御される可能性がある。
+
+最近ではサーバはフロントエンドアプリとJSONを介して通信を行うことが多いが、従来のサーバサイドレンダリングされたHTMLウェブアプリケーションを実行することもできる。
+
+一般に、サーバは、サーバが保持するある種の**状態**(一般的にデータベースにある)を反映するレスポンスを送信する責務を負う。
+
+従来、Selenium を使って`e2e`テストを書く場合、ブラウザを自動化する前に、サーバ上で何らかの**セットアップとティアダウン**を行う。
+
+おそらく、ユーザを生成し、関連とレコードをシードする必要があるだろう。フィクスチャやファクトリなどを使うのに慣れているかもしれない。
+
+空のビューや、ページネーションビューなど、様々なページの状態をテストするには、この状態をテストできるように、サーバをシードする必要がある。
+
+**この戦略には他にも多くのことはあるが、Cypressを使ってこれを促すには通常３つの方法がある:**
+
+- [`cy.exec()`](/api/commands/exec) - システムコマンドを実行する
+- [`cy.task()`](/api/commands/task) - [setupNodeEvent](/app/plugins/plugins-guide#Using-a-plugin)
+関数を介してノードでコードを実行する
+- [`cy.request()`](/api/commands/request) - HTTPリクエストを生成する
+
+サーバ上で`node.js`を実行している場合、`npm`タスクを実行する`before`フック、あるいは`beforeEach`フックを追加することができる。
+
+```js
+describe('The Home Page', () => {
+  beforeEach(() => {
+    // reset and seed the database prior to every test
+    cy.exec('npm run db:reset && npm run db:seed')
+  })
+
+  it('successfully loads', () => {
+    cy.visit('/')
+  })
+})
+```
+
+システムコマンドを単に実行するだけではなく、もっと柔軟性が必要な場合、一連のルーティングをテスト環境で実行している場合にのみ公開することができる。
+
+**例えば、いくつかのリクエストを組み合わせてサーバに正確に作成した状態を伝えることができる。**
+
+```js
+describe('The Home Page', () => {
+  beforeEach(() => {
+    // reset and seed the database prior to every test
+    cy.exec('npm run db:reset && npm run db:seed')
+
+    // seed a post in the DB that we control from our tests
+    cy.request('POST', '/test/seed/post', {
+      title: 'First Post',
+      authorId: 1,
+      body: '...',
+    })
+
+    // seed a user in the DB that we can control from our tests
+    cy.request('POST', '/test/seed/user', { name: 'Jane' })
+      .its('body')
+      .as('currentUser')
+  })
+
+  it('successfully loads', () => {
+    // this.currentUser will now point to the response
+    // body of the cy.request() that we could use
+    // to log in or work with in some way
+
+    cy.visit('/')
+  })
+})
+```
+
+このアプローチには本当に_間違い_はないが、多くの複雑さが追加される。サーバとブラウザ間での状態を同期させるのに苦労することになる。そして、テストの前に常に、セットアップ／ティアダウンが必要になる（時間がかかる）。
+
+幸いなことに、これはSeleniumではないし、従来のe2eテストツールでもない。つまり、同じ制限に縛られることはない。
+
+**Cypressを使うと、ほぼ間違いなく、もっと優れた高速なエクスペリエンスが得られるアプローチが他にもいくつかある。**
+
+### サーバをスタブする
+
+シーディングをやサーバとのやり取りに対抗する他の有効なアプローチは完全にバイパスすることだ。
+
+サーバから通常の HTML/JS/CSSアセットをすべて受け取り、同じやり方で[`cy.visit()`](/api/commands/visit)を続けるが、代わりにそこから来るJSONレスポンスを**スタブする**ことができる。
+
+これはつまり、データベースをリセットしたり、求めている状態でデータベースにシーディングする代わりに、サーバに欲しいものを(**何でも**レスポンスさせることができる、ということだ。この方法では、サーバとブラウザ間での状態で同期しなくてもよくするだけではなく、テストから状態を変更することも防ぐ。つまり、テストではほかのテストに影響を及ぼす可能性のある状態にしないということだ。
+
+もう１つの利点はこれによりサーバの_契約_がなくても**アプリケーションを構築**できるようにするということだ。データを構造化する方法でアプリケーションを構築することができ、サーバを必要とせずにすべてのエッジケースをテストすることもできる。
+
+しかしながら、**両方**の戦略が有効な場合、まだバランスが取れているかもしれない（そして、それを実行する必要があるはずだ）。
+
+スタブ化は優れたものだが、これはこれらのレスポンスペイロードが実際にサーバが送信するものと一致することが保証されないということを意味する。しかしながら、これを回避する有効な方法はまだ多数ある:
+
+#### 事前にフィクスチャスタブを生成する
+
+サーバにすべてのフィクスチャスタブを事前に生成しておくこともできる。これは、サーバが実際に送信する内容がデータに反映されるということだ。
+
+#### スタブなしでe2eテストを１つ書き、残りをスタブする
+
+もう１つのもっとバランスの取れたアプローチは両方の戦略を統合することだ。おそらく真の`e2e`アプローチを用意して何もスタブしない**単一のテスト**が欲しい場合がある。データベースのシーディングや状態のセットアップ含め、この機能を実際に使うつもりだ。
+
+動作していることが確認できたら、次にスタブを使ってすべてのエッジケースと追加のシナリオをテストすることができる。ほとんどの場合、実際のデータを使うことに利点はない。テストのほとんどの場合で、スタブデータを使うことをおススメする。これらは非常に高速で複雑さもはるかに少なくなる。
+
+:::info
+
+<strong>ガイド: ネットワークリクエスト</strong>
+
+これを実現するためのより詳細な分析とアプローチについては、[ネットワークリクエストに関するガイド](/app/guides/network-requests)を参照してほしい。
+
+:::
+
+### ログイン
+
+テストで克服しなければならない最初の(そして、おそらく最も難しい)ハードルの1つは、アプリケーションにログインすることだ。
+
+ログインの必要性ほど、テストスイートの速度を低下させるものはないが、アプリケーションの優れた部分はすべて、認証されたユーザを必要とするものがほとんどだ！ここではいくつかのヒントを挙げる。
+
+#### ログインフローは完全にテストすること。但し、一度だけだ!
+
+サインアップとログインのフローをテストカバレッジ対象に置くことは、すべてのユーザにとって非常に重要であり、絶対に壊したくないのでよい考えだ。
+
+ログインは**ミッションクリティカル**な機能の１つであり、サーバに関連する可能性がある。実査のユーザが行うのと同じようにUIを使ってサインアップとログインをテストすることをおススメする:
+
+下記はデータベースをシーディングするときの例だ:
+
+```js
+describe('The Login Page', () => {
+  beforeEach(() => {
+    // reset and seed the database prior to every test
+    cy.exec('npm run db:reset && npm run db:seed')
+
+    // seed a user in the DB that we can control from our tests
+    // assuming it generates a random password for us
+    cy.request('POST', '/test/seed/user', { username: 'jane.lane' })
+      .its('body')
+      .as('currentUser')
+  })
+
+  it('sets auth cookie when logging in via form submission', function () {
+    // destructuring assignment of the this.currentUser object
+    const { username, password } = this.currentUser
+
+    cy.visit('/login')
+
+    cy.get('input[name=username]').type(username)
+
+    // {enter} causes the form to submit
+    cy.get('input[name=password]').type(`${password}{enter}`)
+
+    // we should be redirected to /dashboard
+    cy.url().should('include', '/dashboard')
+
+    // our auth cookie should be present
+    cy.getCookie('your-session-cookie').should('exist')
+
+    // UI should reflect this user being logged in
+    cy.get('h1').should('contain', 'jane.lane')
+  })
+})
+```
+
+また、下記についてもログインUIをテストするべきだろう:
+
+- 無効なユーザ名 / パスワード
+- 取得したユーザ名
+- パスワードの複雑さの要件
+- ロックされた／削除されたアカウントのようなエッジケース
+
+これらはいずれもおそらく完全なe2eテストが必要だ。
+
+#### ログインコードを再利用する
+
+現時点では、上記のログインコードを認証ユーザを必要とするすべてのテストにコピーペーストするのを妨げるものは何もない。
+あるいは、すべてのテストを１つの大きなスペックファイルに入れて、
+ログインコードを`beforeEach`ブロックに入れることもできる。
+しかしこれらのアプローチはどちらも特別にメンテナンス可能ではなく、あまりエレガントではない。
+よりよいソリューションは、カスタムの`cy.login()`[コマンド](/api/cypress-api/custom-commands)を書くことだ。
+
+カスタムコマンドを使うと、簡単にカプセル化して、Cypressテストロジックを再利用することができるようになる。
+これにより、独自の機能をテストスイートに追加して、組み込みのCypressコマンドと同じ
+[チェイン可能な非同期API](/app/core-concepts/introduction-to-cypress#The-Cypress-Command-Queue)
+を使えるようになる。上記のログインサンプルをカスタムコマンドにして、`cypress/support/commands.js`に追加して、
+任意のペックファイルで利用できるようにしよう:
+
+```js
+// In cypress/support/commands.js
+
+Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+
+  cy.get('input[name=username]').type(username)
+
+  // {enter} causes the form to submit
+  cy.get('input[name=password]').type(`${password}{enter}`, { log: false })
+
+  // we should be redirected to /dashboard
+  cy.url().should('include', '/dashboard')
+
+  // our auth cookie should be present
+  cy.getCookie('your-session-cookie').should('exist')
+
+  // UI should reflect this user being logged in
+  cy.get('h1').should('contain', username)
+})
+
+// In your spec file
+
+it('does something on a secured page', function () {
+  const { username, password } = this.currentUser
+  cy.login(username, password)
+
+  // ...rest of test
+})
+```
+
+#### パフォーマンスを改善する
+
+「1回だけの」ログインに関する我々のアドバイスに何が起こるかおそらく疑問に思っていることだろう。上述のカスタムコマンドはセキュアなページのテストにはうまく動くが、テストが多数ある場合、すべてのテストの前にログインするとスイート全体の実行時間が長くなってしまう。
+
+幸いなことに、Cypressには強力なパフォーマンスツールである、
+[`cy.session()`](/api/commands/session)コマンドが用意されていて、ユーザに紐づけられているブラウザのコンテキストをキャッシュすることができ、複数のログインフローを介することなく、複数のテストで再利用することができる。
+前述の例のカスタムの`cy.login()`コマンドを`cy.session()`を使うように修正してみよう:
+
+```js
+Cypress.Commands.add('login', (username, password) => {
+  cy.session(
+    username,
+    () => {
+      cy.visit('/login')
+      cy.get('input[name=username]').type(username)
+      cy.get('input[name=password]').type(`${password}{enter}`, { log: false })
+      cy.url().should('include', '/dashboard')
+      cy.get('h1').should('contain', username)
+    },
+    {
+      validate: () => {
+        cy.getCookie('your-session-cookie').should('exist')
+      },
+    }
+  )
+})
+```
+
+:::info
+
+<strong>サードパーティログイン</strong>
+
+アプリケーションが[Auth0](https://auth0.com/)や[Okta](https://www.okta.com/)のような
+サードパーティ認証プロバイダを介したログインを実装している場合、
+[`cy.origin()`](/api/commands/origin)コマンドを使って、認証テストの一部にログインページを含めるとよい。
+
+:::
+
+これには、ここで紹介したもの以外の多くのことが行われている。
+より詳しい説明については、[`cy.session()`](/api/commands/session)のドキュメントを参照してほしい。
+
+:::info
+
+<strong>認証に関するレシピ</strong>
+
+ログインはここで扱ったものよりもさらに複雑になり得る。
+
+CSRFトークンを扱う、あるいはログインフォームに基づくXHRをテストするなど、さらなるシナリオをカバーすいくつかのレシピを作成した。
+
+適宜、[これらの追加のログインを調べる](/app/references/recipes)のレシピを参照してほしい。
+
+:::
+
+## はじめよう
+
+では、一通り説明はしたので、アプリケーションのテストを始めよう。
+
+ここからは、我々のガイドを必要に応じて参照してほしい:
+
+- 利用可能なコマンドを学ぶための[Cypress API](/api/table-of-contents)
+- [Cypressの紹介](/app/core-concepts/introduction-to-cypress)ではCypressが_実際に_どう機能するかを説明している
+- `cypressの実行`外でテストのために実行する[コマンドライン](/app/references/command-line)
+- CypressをCIで実行するための[継続的インテグレーション](/app/continuous-integration/overview)
+- CIで、FirefoxやChromeファミリのブラウザをまたいで実行する場合のための、
+[クロスブラウザテスト](/app/guides/cross-browser-testing)
+- <Icon name="github" inline="true" contentType="rwa" />では実際のプロジェクトにおける、Cypressテストの実践、設定、戦略をデモンストレーションしている。

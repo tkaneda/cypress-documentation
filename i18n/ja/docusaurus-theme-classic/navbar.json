@@ -1,0 +1,30 @@
+{
+  "logo.alt": {
+    "message": "Cypress Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.App": {
+    "message": "App",
+    "description": "Navbar item with label App"
+  },
+  "item.label.API": {
+    "message": "API",
+    "description": "Navbar item with label API"
+  },
+  "item.label.Cloud": {
+    "message": "Cloud",
+    "description": "Navbar item with label Cloud"
+  },
+  "item.label.UI Coverage": {
+    "message": "UI Coverage",
+    "description": "Navbar item with label UI Coverage"
+  },
+  "item.label.Accessibility": {
+    "message": "Accessibility",
+    "description": "Navbar item with label Accessibility"
+  },
+  "item.label.Learn": {
+    "message": "Learn",
+    "description": "Navbar item with label Learn"
+  }
+}

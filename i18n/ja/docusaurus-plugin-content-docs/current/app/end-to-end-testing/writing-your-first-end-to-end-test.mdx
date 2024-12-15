@@ -1,0 +1,470 @@
+---
+title: 'エンドツーエンドテスト: Cypressを使った最初のテスト'
+sidebar_label: '最初のテスト'
+description: '初めてのテストを書くためのガイドを使ってCypressのエンドツーエンドテストに飛び込もう。ステップバイステップ、ベストプラクティス、効率的なテスト作成のためのヒントを学ぼう'
+sidebar_position: 10
+slug: /app/end-to-end-testing/writing-your-first-end-to-end-test
+---
+
+# 初めてのテスト
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- サンプルアプリを使ったCypressの最初のエンドツーエンドテストの書き方
+- ページにある要素とやり取りするためのCypressコマンドの使い方
+- アプリケーションの状態に関するアサーションの作成方法
+  :::
+
+## テストファイルを追加する
+
+無事に
+[Cypress をインストール](/app/get-started/install-cypress)して
+[Cypressを開いた](/app/get-started/open-the-app)という前提で、さぁ、最初のテストを追加するときだ。
+**Create new empty spec**ボタンをクリックして進めよう。
+
+<DocsImage
+  src="/img/app/end-to-end-testing/writing-your-first-end-to-end-test/create-new-spec.png"
+  alt="Cypress with the Create new empty spec button highlighted"
+/>
+
+これをクリックすると、新しいspecの名前を入力するダイアログが表示される。
+ここではデフォルト名を受け入れるだけでよい。
+
+<DocsImage
+  src="/img/app/end-to-end-testing/writing-your-first-end-to-end-test/enter-path-for-new-spec.png"
+  alt="The new spec path dialog"
+/>
+
+新しく生成されたspecが設定ダイアログに表示される。✕ボタンを使って閉じて進めよう。
+
+<DocsImage
+  src="/img/app/end-to-end-testing/writing-your-first-end-to-end-test/new-spec-added-confirmation.png"
+  alt="The new spec confirmation dialog"
+/>
+
+そのファイルを作成すると、エンドツーエンドのspecのリストにすぐに表示されるはずだ。
+Cypressはspecファイルの変更を監視し、その変更を自動的に表示する。
+
+<DocsImage
+  src="/img/app/end-to-end-testing/writing-your-first-end-to-end-test/spec-list-with-new-spec.png"
+  alt="Cypress showing the spec list with the newly created spec"
+/>
+
+我々はまだ何もコードを書いていないが、それでも大丈夫だ。新しいspecをクリックして、
+Cypressがそれを起動するのを見てみよう。
+Cypressは`https://example.cypress.io`にアクセスして、テストにパスする。
+
+<DocsImage
+  src="/img/app/end-to-end-testing/writing-your-first-end-to-end-test/new-spec-test-run.png"
+  alt="Cypress showing the newly created spec passing"
+/>
+
+## 初めてのテストを書く
+
+ここで、初めてのテストを書く。次の操作を行う:
+
+1. 最初のパスするテストを書く。
+2. 失敗するように更新する。
+3. Cypessが即時にリロードするのを確認する。
+
+お気に入りのIDEを開いて、specの内容を下記のコードに置き換える。
+
+```js
+describe('My First Test', () => {
+  it('Does not do much!', () => {
+    expect(true).to.equal(true)
+  })
+})
+```
+
+この変更を保存したら、ブラウザをリロードする。
+
+有用なことは何もやってないが、これが最初にパスしたテストだ! ✅
+
+[コマンドログ](/app/core-concepts/open-mode#Command-Log)には、
+スイート、テスト、および最初のアサーション(緑色で表示される）が表示される。
+
+<DocsImage
+  src="/img/app/get-started/e2e/v10/first-test.png"
+  alt="My first test shown passing in Cypress"
+/>
+
+:::info
+
+Cypressではこれがデフォルトページであることを示すメッセージが
+[画面右側に](/app/core-concepts/open-mode#Application-Under-Test)表示されることに注意してほしい。
+Cypressは、あなたがインターネット上のURLに[アクセスする](/api/commands/visit)ことを前提としているが、
+そうでなくても問題なく動作する。
+
+:::
+
+では、最初に失敗するテストを書こう。
+
+```js
+describe('My First Test', () => {
+  it('Does not do much!', () => {
+    expect(true).to.equal(false)
+  })
+})
+```
+
+再度これを保存すると、`true`は`false`と等しくないので、Cypressにはテストに失敗したことが赤で表示される。
+
+Cypressにはまた、スタックトレースと、(可能であれば)アサーションが失敗した場所のコードフレームも表示される。
+ブルーのファイルリンクをクリックしてエラーが発生したファイルを
+[使い慣れたファイルオープナー](/app/tooling/IDE-integration#File-Opener-Preference)で開く。
+エラーの表示に関する詳細については、
+[エラーをデバッグする](/app/guides/debugging#Errors)を参照してほしい。
+
+<!--
+To reproduce the following screenshot:
+describe('My First Test', () => {
+  it('Does not do much!', () => {
+    expect(true).to.be.false
+  })
+})
+-->
+
+<DocsImage
+  src="/img/app/get-started/e2e/v10/first-test-failing.png"
+  alt="Failing test"
+/>
+
+[Cypress](/app/core-concepts/open-mode)では視覚化されたスイート、テスト、
+アサーションの構造が表示される。コマンド、ページイベント、ネットワークリクエストなどについても、このあと説明する。
+
+:::info
+
+**_describe_、_it_、_expect_って何？**
+
+これらの関数はすべて、Cypressに組み込まれている
+[バンドルライブラリ](/app/references/bundled-libraries)に起因するものである。
+
+- `describe`と`it`は[Mocha](https://mochajs.org/)に起因する。
+- `expect`は[Chai](http://www.chaijs.com/)に起因する。
+
+Cypressは、_願わくば_、すでに馴染みがあるかご存知であって欲しい、
+これらの著名なツールやフレームワークで構築されている。が、知らなくても大丈夫。
+
+:::
+
+:::tip
+
+<strong>ESlintを使っている？</strong>
+
+[Cypress ESLintプラグイン](https://github.com/cypress-io/eslint-plugin-cypress)を参照してほしい。
+
+:::
+
+## _実際の_テストを書く
+
+**一般的に、ソリッドなテストは３つのフェーズで構成されている:**
+
+
+1. アプリケーションの状態を設定する。
+2. 実行する。
+3. 結果のアプリケーションの状態に関するアサーションを行う。
+
+これらは、「Given, When, Then」あるいは「アレンジ、実行、アサート」と表現されることもある。しかし、その考え方は、まずアプリケーションを特定の状態にし、次にアプリケーションで変化を及ぼすなんらかのアクションを実行し、最後にその結果のアプリケーションの状態をチェックする。
+
+ここで、これらのステップを詳しく見て、Cypressコマンドに明確にマッピングする：
+
+1. ウェブページにアクセスする。
+2. 要素をクエリーする。
+3. 要素とやり取りする。
+4. ページの内容についてアサートする。
+
+### <Icon name="globe" /> ステップ１: ページにアクセスする
+
+まず、ウェブページにアクセスする。この例では、
+[キッチンシンク](https://github.com/cypress-io/cypress-example-kitchensink)アプリケーションにアクセスするので、テストページを見つけることを心配することなく、Cypress を試すことができる。
+
+アクセスしたいURLを[`cy.visit()`](/api/commands/visit)に渡すことができる。
+前のテストを、実際にページにアクセスする下記のテストに置き換えよう:
+
+```js
+describe('My First Test', () => {
+  it('Visits the Kitchen Sink', () => {
+    cy.visit('https://example.cypress.io')
+  })
+})
+```
+
+ファイルを保存して、Cypressテストランナーに切り替える。下記の点に注意してほしい：
+
+1. [コマンドログ](/app/core-concepts/open-mode#Command-Log)に、新しく`VISIT`アクションが表示される。
+2. キッチンシンクアプリケーションが[App](/app/core-concepts/open-mode)にロードされた。
+3. アサーションを作成していないにもかかわらず、テストはグリーンだ。
+4. ページのロードが完了するまで、`VISIT`に**青色の保留状態**が表示される。
+
+このリクエストが、`404`や`500`など、`2xx`以外のステータスコードが返された場合、あるいはアプリケーションのコードに JavaScriptエラーがあった場合、テストは失敗する。
+
+<DocsVideo
+  src="/img/snippets/first-test-visit-30fps.mp4"
+  title="First test with cy.visit()"
+/>
+
+:::danger
+
+<strong>自分で制御できないアプリケーションをテストする</strong>
+
+このガイドでは、サンプルアプリケーション:[`https://example.cypress.io`](https://example.cypress.io)をテストしている。しかしながら、**制御できない**アプリケーションのテストについては慎重に検討すべきだ。なぜか？
+
+- それらはいつでも変更される可能性があり、それによりテストが壊れる。
+- それらはA/Bテストをしている可能性があり、そのため一貫した結果を得ることが難しい。
+- それらは、あなたのアクセスがスクリプトであることを判断して、あなたのアクセスをブロックするかもしれない。
+- Cypressが動作しないようにするセキュリティ機能が有効になっている可能性がある。
+
+一般的に言って、Cypressのポイントは、自分の独自のアプリケーションを構築、テストするために毎日使うツールであり、汎用のウェブ自動化ツールではないということだ。
+しかしながら、これは厳密なルールではなく、ガイドラインであり、特定の種類のアプリケーションに対して例外を設ける政党な理由がいくつかある:
+
+- これらはSSOプロバイダなどのサードパーティと統合するように、特別に設計されている。
+- これらは、SaaSコントロールパネルや分析など、補完的なサービスを提供する。
+- これらはコンテンツを再利用したり、あなたが制御するアプリケーションへプラグインを提供したりする。
+
+ここで重要なことは、問題のテストの利点と、可能性のある混乱を慎重に比較評価して、この類のテストがもたらす可能性のあるものを取り除くことだ。
+
+:::
+
+### <Icon name="search" /> ステップ2: 要素をクエリーする
+
+これでページがロードされたら、それに対し何らかのアクションを追加していく。ページにあるリンクをクリックしてみてはどうか？　簡単そうなので、気に入ったものを探してみよう。`型`についてはどうだろう？
+
+そのコンテンツで要素を見つけるには、
+[`cy.contains()`](/api/commands/contains)を使う。
+
+これをテストに追加して、何が起こるか見てみよう:
+
+```js
+describe('My First Test', () => {
+  it('finds the content "type"', () => {
+    cy.visit('https://example.cypress.io')
+
+    cy.contains('type')
+  })
+})
+```
+
+このテストでは
+[コマンドログ](/app/core-concepts/open-mode#Command-Log)には`CONTAINS`と表示されているはずだが、緑のままだ。
+
+アサーションを追加しなくても、すべてOKであることがわかる。これはCypressのコマンドの多くが期待していたものが見つからなかった場合には失敗するように構築されているからだ。これは
+[暗黙的なアサーション](/app/core-concepts/introduction-to-cypress#Implicit-Assertions)として知られている。
+
+これを検証するには、`type`を`hype`のように、ページにないものに置き換える。テストが赤になることに気づくだろうが、
+それは4秒後だ。
+
+Cypressが内部で何をしているか、分かるだろうか？これは、コンテンツが**最終的に**DOM内で見つかることを期待しているので、自動的に待機してリトライする。すぐに失敗するわけではない。
+
+<!--
+To reproduce the following screenshot:
+describe('My First Test', () => {
+  it('finds the content "type"', () => {
+    cy.visit('https://example.cypress.io')
+    cy.contains('hype')
+  })
+})
+-->
+
+<DocsImage
+  src="/img/app/get-started/e2e/v10/first-test-failing-contains.png"
+  alt="Test failing to not find content 'hype'"
+/>
+
+:::caution
+
+<strong>エラーメッセージ</strong>
+
+Cypressが、何が悪かったのかを明確に説明しようとする何百ものカスタムエラーメッセージを生成するように注意してきた。
+この場合、Cypressはページ全体の中でコンテンツに`hype`を見つけようとして**タイムアウトした**。
+エラーの表示に関する詳細については、
+[エラーをデバッグする](/app/guides/debugging#Errors)を参照してほしい。
+
+:::
+
+別のコマンドを追加する前に、このテストをパスさせよう。`hype`を`type`に置き換える。
+
+<DocsVideo
+  src="/img/snippets/first-test-contains-30fps.mp4"
+  title="First test with cy.contains()"
+/>
+
+### <Icon name="mouse-pointer" /> ステップ3: 要素をクリックする
+
+では、見つけたリンクをクリックしよう。どうすればよいだろうか？下記のように、前のコマンドの最後に
+[.click()](/api/commands/click)コマンド追加しよう。
+
+```js
+describe('My First Test', () => {
+  it('clicks the link "type"', () => {
+    cy.visit('https://example.cypress.io')
+
+    cy.contains('type').click()
+  })
+})
+```
+
+ほぼほぼ、短い物語のように読むことができると思う。Cypressではこれを「チェイン」と呼び、コマンドを一緒にチェインして、宣言的な方法でアプリの動作を実際に表現するテストを構築する。
+
+また、[App](/app/core-concepts/open-mode)は、クリックの後でさらに更新され、リンクに従って宛先ページを表示していることに注意してほしい:
+
+これで、この新しいページについて、アサートできるようになった。
+
+<DocsVideo
+  src="/img/snippets/first-test-click-30fps.mp4"
+  title="First test with .click()"
+/>
+
+<IntellisenseCodeCompletion />
+
+### <Icon name="check-square" /> ステップ4: アサーションを作る
+
+クリックした新しいページにあるなにかについて、アサーションを作成しよう。
+おそらく、新しいURLが期待されたURLであることを確認したい。これを行うには、URLをルックアップして、
+[.should()](/api/commands/should)を使ってアサーションをチェインさせる。
+
+このようになる:
+
+```js
+describe('My First Test', () => {
+  it('clicking "type" navigates to a new url', () => {
+    cy.visit('https://example.cypress.io')
+
+    cy.contains('type').click()
+
+    // Should be on a new URL which
+    // includes '/commands/actions'
+    cy.url().should('include', '/commands/actions')
+  })
+})
+```
+
+#### さらにコマンドとアサーションを追加する
+
+テストでは、単一のインタラクションとアサーションに限定されない。実際、アプリケーション内の多数のインタラクションには複数のステップが必要で、複数の方法でアプリケーションの状態を変更する可能性がある。
+
+この新しいページ上の要素とやりとを行い、その振る舞いを検証する別のチェインを追加することにより、このテストでインタラクションとアサーションを継続することができる。
+
+クラスに基づいて１つの要素を選択するには[cy.get()](/api/commands/get)を使うとよい。
+次に、選択された入力にテキストを入力するには[.type()](/api/commands/type)コマンドを使うことができる。
+最後に、入力された値が別の[.should()](/api/commands/should)で入力されたテキストを反映していることの検証が可能だ。
+
+一般的に、テストの構造は クエリ -> クエリ -> コマンド、あるいはアサーションのフローになっているべきだ。
+アクションコマンドの後には何もチェインさせないことがベストプラクティスである。その理由の詳細については、
+[retry-ability](/app/core-concepts/retry-ability)のガイドを参照してほしい。
+
+```js
+describe('My First Test', () => {
+  it('Gets, types and asserts', () => {
+    cy.visit('https://example.cypress.io')
+
+    cy.contains('type').click()
+
+    // Should be on a new URL which
+    // includes '/commands/actions'
+    cy.url().should('include', '/commands/actions')
+
+    // Get an input, type into it
+    cy.get('.action-email').type('fake@email.com')
+
+    //  Verify that the value has been updated
+    cy.get('.action-email').should('have.value', 'fake@email.com')
+  })
+})
+```
+
+:::caution
+
+通常、要素をクラス名でセレクトして検索するのはおススメしないが、ここでは外部サイトを照会しているので、そうしている。また、ここでやるべきことはこれだけだ。
+
+セレクタのベストプラクティスに関するガイダンスの詳細については、
+[ここ](/app/core-concepts/best-practices#Selecting-Elements)にあるガイドを参照してほしい。
+
+:::
+
+これは、Cypressの短いテストで、ページにアクセスして、リンクを見つけてクリックして、URLを検証して、次に、新しいページにある要素の振る舞いを検証する。声に出して読むと、下記のように聞こえるかもしれない:
+
+:::note
+
+1. _`https://example.cypress.io`にアクセスする_
+2. _content: `type`の要素を見つける_
+3. _それをクリックする_
+4. _URLを取得する_
+5. _`/commands/actions`が含まれていることをアサートする_
+6. _`action-email`クラスに入力を取得する_
+7. _`fake@email.com`を入力する_
+8. _入力が新しい値に反映されたことをアサートする_
+
+:::
+
+あるいは、_Given_, _When_, _Then_構文ではこうなる:
+
+:::note
+
+1. _ユーザが `https://example.cypress.io` にアクセスした**とする**_
+2. _`type`とラベルのついたリンクをクリックした**とき**_
+3. _そして、`action-email`入力のクラスをもつ入力に "[fake@email.com](mailto:fake@email.com)"と入力する_
+4. _**次に**、URLには`/commands/actions`が含まれているはずだ_
+5. _また、`[class="action-email"]`の入力の値は、"fake@email.com" である_
+
+:::
+
+そしてこれは非常にクリーンなテストだ!_どのように_機能するかについては、何も言う必要はなかったが特定の一種のイベントと結果を検証したい。
+
+<DocsVideo
+  src="/img/snippets/first-test-assertions-30fps.mp4"
+  title="First test with assertions"
+/>
+
+:::info
+
+<strong>ページ遷移</strong>
+
+このテストは２つのことなるページにわたって遷移される点に注意してほしい。
+
+1. 最初の[cy.visit()](/api/commands/visit)
+2. 新しいページへの[.click()](/api/commands/click)
+
+Cyprssは自動的に`ページ遷移イベント`のようなものを検出し、次のページのロードが**完了する**まで自動的にコマンドの実行を**中断する**。
+
+**次のページ**のロードが完了していなければ、Cypressはテストを終了してエラーを表示しただろう。
+
+内部的に、これは、古いページに対して間違ってコマンドが実行されることを心配する必要がない、ということだ。また、部分的ロードされたページに対してコマンドが実行されてしまうことを心配する必要もない。
+
+前述したように、CypressはDOM要素の検索がタイムアウトするまで**４秒間**待機するが、この場合、Cypressが`ページ遷移イベント`を検出した場合、単一の`PAGE LODA`イベントのタイムアウトを自動的に**60秒**に増やす。
+
+言い換えると、コマンドと発生したイベントに基づいて、Cypressは自動的に予想されるタイムアウトをウェブアプリケーションの振る舞いに合わせて変更する。
+
+これらの様々なタイムアウトについては、[設定](app/references/configuration#Timeouts)ドキュメントで定義されている。
+
+:::
+
+## Cypressスタジオを使ってテストを記録する
+
+テストを作成するのに必要最小限のコードでアプローチしたいのであれば、
+[Cypress スタジオ](/app/guides/cypress-studio)を使ってブラウザのインタラクションを記録してテストを生成するとよい。
+詳細については、[ガイド](/app/guides/cypress-studio)を参照してほしい。
+
+## 次のステップ
+
+- 無料の
+  [初めてのアプリケーションをテストする](https://learn.cypress.io/testing-your-first-application)
+  コースを受講しよう。
+- [Cypressアプリ](/app/core-concepts/open-mode)UIについて学ぼう。
+- [アプリケーションをテストする](/app/end-to-end-testing/testing-your-app)を始めよう。
+- Cypressコマンドやアサーションのための
+  [intelligent code completion](/app/tooling/IDE-integration#Intelligent-Code-Completion)
+  をセットアップしよう。
+- テスト結果を[Cypressクラウド](/cloud/get-started/introduction)に記録すると、
+  並列化、フレーク検出などの高度な機能を利用できる。
+- <Icon name="github" inline="true" contentType="rwa" />をチェックアウトして、
+  実世界のプロジェクトにおいえる Cypressのテストプラクティス、構成、および戦略の
+  実践的なデモンストレーションを確認してほしい。
+- Cypressのドキュメントを検索して必要なものを素早く見つけてほしい。
+
+<DocsImage
+  src="/img/app/get-started/e2e/search-box.png"
+  alt="Use the search box to find relevant documentation"
+/>

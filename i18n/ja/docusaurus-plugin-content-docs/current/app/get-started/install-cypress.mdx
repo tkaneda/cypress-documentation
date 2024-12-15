@@ -1,0 +1,187 @@
+---
+title: 'npm, yarn, もしくはpnpmを使ってインストール | Cypressドキュメント'
+description: Cypressのインストール方法のステップバイステップガイド. 要件、インストールプロセスを学んで、エンドツーエンドテストやコンポーネントテストのためにCypressを始めよう。
+sidebar_label: Cypressをインストールする
+sidebar_position: 30
+---
+
+# Cypressをインストールする
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- `npm`、`yarn`、もしくは`pnpm`を用いたCypressのインストール方法
+- Cypressのシステム要件
+- 直接ダウンロードを使った Cypress のインストール方法
+- 高度なインストールオプション
+:::
+
+# Cypressをインストールする
+
+まず、[システム要件](#System-requirements)をすべて満たすことを確認しよう。
+
+## インストール
+
+使い慣れたパッケージマネージャを介してCypressをインストールしよう。これはCypressをローカルにプロジェクトの`dev`依存関係としてインストールする。`pnpm`であれば、`pnpm`環境がインストールされていることを確認すること: `npm install pnpm@latest --global`.
+
+<CypressInstallCommands />
+
+[Node.jsがインストールされている](#Installing-Nodejs)こと、[npm init](https://docs.npmjs.com/cli/init)がすでに実行されていること、あるいは、Cypressが正しいディレクトリにインストールされていることを確認するために、`node_modules`フォルダまたは、`package.json`ファイルがプロジェクトのルートにあることを確認すること。
+
+システムの [プロキシプロパティ](/app/references/proxy-configuration)、`http_proxy`、`https_proxy`、および`no_proxy`はCypressバイナリのダウンロードに用いられる。また、`npm`のプロパティ、`npm_config_proxy`と`npm_config_https_proxy`も使うことができる。これらは優先度が低いので、システムプロパティがプロキシを使わないように解決されている場合にのみ使われる。
+
+:::info
+
+<strong>snap</strong>
+
+[Node.js Snap for Linux](https://github.com/nodejs/snap)パッケージマネージャはオペレーティングシステムへのアクセスを制限している。インストールするには下記を使用する:
+
+```shell
+npm install cypress --save-dev --foreground-scripts
+```
+
+:::
+
+### <Icon name="download" /> 直接ダウンロード
+
+おススメのアプローチは、npmを使ってCypressをインストールすることだ。というのも
+
+- Cypressは他の依存関係と同様、バージョン管理される。
+- [継続的インテグレーション](/app/continuous-integration/overview)でCypressの実行が簡素化される。
+
+プロジェクトで、Node、あるいはパッケージマネージャを使っていない場合、あるいはCypressを素早く試してみたいだけであれば、[CDN から直接ダウンロードする](https://download.cypress.io/desktop)とよい。
+
+:::caution
+
+Cypressクラウドへ実行を記録するのは、直接ダウンロードからはできない。このダウンロードはCypressを試してみるための簡単な方法としてのみ意図されている。テストをCypressクラウドに記録するには、パッケージ依存関係としてCypressをインストールする必要がある。
+
+:::
+
+直接ダウンロードすると、常に利用可能な最新バージョンが取得される。プラットフォームは自動的に検出される。
+
+次に、手動で解凍してダブルクリップする。Cypressは依存関係をインストールする必要なく実行される。
+
+:::info
+
+<strong>古いバージョンの直接ダウンロード</strong>
+
+URLに目的のバージョンのサフィックスを付与することで、CDNから古いバージョンをダウンロードすることができる。(例：[https://download.cypress.io/desktop/12.17.4](https://download.cypress.io/desktop/12.17.4))
+
+:::
+
+### <Icon name="cog" /> 高度なインストール
+
+もっと複雑な要件がある場合、Cypressワークフローをレベルアップしたい場合、あるいはトラブルシュートのサポートが欲しい場合は、[高度なインストール](/app/references/advanced-installation)のリファレンスを参照のこと。
+このリファレンスドキュメントには、[Cypressのアンインストール](/app/references/advanced-installation#Uninstall-Cypress)の手順も用意されている。
+
+### <Icon name="sync-alt" /> 継続的インテグレーション
+
+CypressをCIにインストールする方法については、[継続的インテグレーション](/app/continuous-integration/overview)のドキュメントを参照してほしい。Linuxで実行する場合は、いくつかの[システム依存関係](#Linux-Prerequisites)をインストールする必要があるかもしれない。あるいは、必要なものが事前に構築されている[Dockerイメージ](#Docker-Prerequisites)を使うこともできる。
+
+## システム要件
+
+### オペレーティングシステム
+
+Cypressは手元のコンピュータにインストールされるデスクトップアプリケーションである。このデスクトップアプリケーションは下記のオペレーティングシステムをサポートする：
+
+- **macOS** 10.15とそれ以降 _(IntelもしくはAppleチップ64bit(x64もしくはarm64))_.
+- **Linux** Ubuntu 20.04とそれ以降、Fedora 39とそれ以降、Debian 11とそれ以降 _(x64もしくはarm64)_ (下記の、[Linux prerequisites](#Linux-Prerequisites)を参照のこと)。
+  - Cypressは、Cypress [`13.0.0`](/app/references/changelog#13-0-0)でのNode.js `16.x`の使用を廃止した。ユーザは少なくともNode.js `18.x`に更新することをお勧めする。
+    関連する理由により、Cypressは[`glibc`](https://www.gnu.org/software/libc/) バージョン`2.17` - `2.27`でのLinuxオペレーティングシステムの使用を廃止した。Linux CLIコマンド `ldd --version`で`glibc`のバージョンが表示される。
+- **Windows** 10とそれ以降 _(x64)_ 。
+
+### Node.js
+
+Cypressはインストールのために[Node.js](https://nodejs.org/)を必要とする。下記にリストアップされたバージョンをサポートする:
+
+- **Node.js** 18.x, 20.x, 22.x とそれ以降
+
+Cypressは通常、[Node のリリーススケジュール](https://github.com/nodejs/Release)と合わせられている。
+
+#### ​Node.jsをインストールする
+
+[Node.jsをダウンロード](https://nodejs.org/en/download/)の手順に従って、[Node.js](https://nodejs.org/)をダウンロードし、インストールする。
+
+[Cypress Dockerイメージ](../continuous-integration/overview#Cypress-Docker-variants)を使っている場合、Node.jsの固定バージョンがイメージにプリインストールされていることに気づくだろう。Dockerイメージタグを使ってNode.js のバージョンを選択すること。
+
+:::tip
+
+<strong>ベストプラクティス</strong>
+
+[Node.jsパッケージマネージャ](https://nodejs.org/en/download/package-manager/all)を使って、Node.jsをインストールする。Node.jsのパッケージマネージャを使うと、異なるバージョンを簡単に切り替えることができるようになる。
+
+:::
+
+### ハードウェア
+
+Cypressをローカルに実行する場合、最新のウェブ開発が可能なマシンであれば、快適に実行できるはずだ。
+
+しかしながら、CypressをCIで実行している場合、特にビデオを録画したり、長時間のテストを実行している場合、一部の低スペック構成ではCypressが確実に実行できない場合がある。
+
+リソース不足の兆候として、CIで発生する可能性のある問題には下記のものがある：
+
+- Cypressの実行中にすぐに終了する、あるいは突然終了する(「クラッシュする」)
+- キャプチャされたビデオ内のフレームがフリーズする、あるいは欠落する
+- 実行時間が延びる
+
+CIでCypressを実行する場合、下記のハードウェア要件を満たすことをお勧めする：
+
+#### CPU
+
+- Cypressを実行するために最低限2つのCPU
+- ビデオ録画を有効化するのであれば、さらに1つのCPUを追加する
+- 下記のような、Cypress外部で実行するプロセス毎にCPUを1つ追加する:
+  - App サーバ(フロントエンド)
+  - App サーバ(バックエンド)
+  - App データベース
+  - 何らかの追加インフラストラクチャ(Rediis,Kafkaなど)
+  
+### メモリ
+
+- 最低限4GB, 長時間のテスト実行のために8GB以上。
+
+### Linuxの前提条件
+
+Linuxを使っている場合、必要な依存関係をシステムにインストールする必要がある。システムのデフォルトによっては、これらの依存関係はすでにインストールされているかもしれない。インストールされてない場合、下記にリストアップされているオペレーティングシステムのコマンドラインを実行する。[Cypress Dockerイメージ](https://github.com/cypress-io/cypress-docker-images)の情報については、下記の [Dockerの前提条件](https://docs.cypress.io/app/get-started/install-cypress#Docker-Prerequisites)を参照してほしい。これらにはすでに必要な依存関係が含まれている。
+
+LinuxでのCypressには、[`glibc`](https://www.gnu.org/software/libc/)のバージョン`2.17`以上を必要とすることに注意してほしい。`glibc`はオペレーティングシステムに同梱されていて変更できないので、このバージョンは固定されている。
+
+#### Ubuntu/Debian
+
+```shell
+apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+```
+
+Ubuntu 24.04には下記のコマンドを使うこと:
+
+```shell
+apt-get install libgtk2.0-0t64 libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb
+```
+
+#### Arch
+
+```shell
+pacman -S gtk2 gtk3 alsa-lib xorg-server-xvfb libxss nss libnotify
+```
+
+#### Amazon Linux 2023
+
+```shell
+dnf install -y xorg-x11-server-Xvfb gtk3-devel nss alsa-lib
+```
+
+### Dockerの前提条件
+
+[Cypress Dockerイメージ](../continuous-integration/overview#Cypress-Docker-variants)は
+[Docker Hub](https://hub.docker.com/u/cypress)と、
+[Amazon ECR (Elastic Container Registry)パブリックギャラリー](https://gallery.ecr.aws/cypress-io) から入手可能である。
+Linux (Debian)ベースのこれらのイメージには、必要なすべての依存関係が事前にインストールされている。
+
+公開されているCypress DockerイメージでカバーされていないNode.js、ブラウザ、あるいはCypress のバージョンの組み合わせが必要な場合は、[cypress/factory](https://github.com/cypress-io/cypress-docker-images/tree/master/factory)イメージを使うと、独自のカスタマイズされた Dockerイメージが簡単に生成できる。
+
+Cypress Dockerイメージを使っていない場合、ベースのオペレーティングシステムが上記のサポートされている[オペレーティングシステム](#Operating-System)にリストされているLinuxシステムであることを確認すること。`unzip`をインストールしておくことをお勧めする。これにより、CypressバイナリインストールがNode.jsを使った遅いunzipメソッドに戻されることを回避できる。
+
+## 次のステップ
+
+[アプリを開いて](/app/get-started/open-the-app)テストドライブに繰り出そう！

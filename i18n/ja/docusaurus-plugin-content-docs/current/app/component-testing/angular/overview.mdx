@@ -1,0 +1,121 @@
+---
+title: Angular コンポーネントテスト
+sidebar_position: 10
+sidebar_label: 概要
+---
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ​ここで学ぶこと
+
+- Angular を使ったコンポーネントテストのセットアップ方法
+- Angular プロジェクトに向けた Cypress の構成方法
+
+:::
+
+## フレームワークのサポート
+
+CypressコンポーネントテストはAngular 13 以降をサポートする。
+
+## チュートリアル
+
+コンポーネントテストをプロジェクトに追加するステップバイステップチュートリアルと
+最初のテストの作成方法に関して、
+[入門ガイド](/app/component-testing/get-started)にアクセスしてほしい。
+
+## インストール
+
+AngularでCypressコンポーネントテストを起動して実行するには、Cypressをプロジェクトにインストールする:
+
+<CypressInstallCommands />
+
+Cypressを開く:
+
+<CypressOpenCommands />
+
+<DocsImage
+  src="/img/app/component-testing/select-test-type.jpg"
+  caption="Choose Component Testing"
+/>
+
+Cypressアプリはプロジェクトの構成全体をガイドする。
+
+:::info
+
+コンポーネントテストの作成方法に関するステップバイステップガイドについては、
+[スタートアップ](/app/component-testing/get-started)ガイドを参照してほしい。
+
+使用方法と例については、
+[Angular サンプル](/app/component-testing/angular/examples)ガイドを参照してほしい。
+
+:::
+
+## フレームワーク構成
+
+Cypressコンポーネントテストは`@angular/cli`プロジェクトを使えばすぐに動かすことができる。
+Cypressはセットアップ中にプロジェクトがAngularであることを自動的に検出して、それを適切に設定する。下記の例は参照用である。
+
+### Angular CLI 構成
+
+:::cypress-config-example
+
+```ts
+{
+  component: {
+    devServer: {
+      framework: 'angular',
+      bundler: 'webpack',
+    },
+    specPattern: '**/*.cy.ts',
+  },
+}
+```
+
+:::
+
+#### options API
+
+`options` APIを使って、独自のプロジェクト固有の構成を`devServer`に提供することもできる。
+`devServer`構成は、`optons`プロパティを受け取る。
+
+```ts title=cypress.config.ts
+import { defineConfig } from 'cypress'
+
+export default {
+  component: {
+    devServer: {
+      framework: 'angular',
+      bundler: 'webpack',
+      options: {
+        projectConfig: {
+          root: '',
+          sourceRoot: 'apps/my-app',
+          buildOptions: {
+            outputPath: 'dist/my-app',
+            index: 'apps/my-app/src/index.html',
+            main: 'apps/my-app/src/main.ts',
+            polyfills: 'apps/my-app/src/polyfills.ts',
+            tsConfig: 'apps/my-app/tsconfig.app.json',
+            inlineStyleLanguage: 'scss',
+            assets: ['apps/my-app/src/favicon.ico', 'apps/my-app/src/assets'],
+            styles: ['apps/my-app/src/styles.scss'],
+            scripts: [],
+            buildOptimizer: false,
+            optimization: false,
+            vendorChunk: true,
+            extractLicenses: false,
+            sourceMap: true,
+            namedChunks: true,
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+#### サンプルAngularアプリ
+
+- [Angular 14](https://github.com/cypress-io/cypress-component-testing-apps/tree/main/angular)
+- [Angular 16 スタンドアロン](https://github.com/cypress-io/cypress-component-testing-apps/tree/main/angular-standalone)
+

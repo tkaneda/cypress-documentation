@@ -1,0 +1,294 @@
+---
+title: "コンポーネントのスタイルをテストする | Cypress ドキュメント"
+description: "Cypressコンポーネントテストを使って、コンポーネントのマークアップ、スタイル、スクリプトロジックをテストする方法を学ぶ"
+sidebar_label: コンポーネントをスタイリングする
+sidebar_position: 20
+---
+
+# コンポーネントをスタイリングする
+
+:::info
+
+##### <Icon name="question-circle" color="#4BBFD2" /> ここで学ぶこと
+
+- なぜ、コンポーネントのスタイルをテストすべきなのか
+- CSSスタイルを使ってコンポーネントを正しくレンダリングする方法
+- サードパーティCSSライブラリを扱う方法
+
+:::
+
+## なぜ、コンポーネントのスタイルをテストするべきなのか?
+
+スタイルシートはコンポーネントのビジネスロジックにおける重要なパーツだ。このもっともよい例の１つはモーダルコンポーネントだ。一般的なモーダルのバグには、Zインデックス問題、オーバーレイを消せないこと、モーダルを消した_後に_親ページとやり取りできないことなどがある。
+
+JestやVitestなどのNodeベースのテストランナーではこの種の問題をキャッチすることはできない。
+というのも、JSDomなどの**エミュレートされたDOM環境**でスタイルをレンダリングするからだ。
+JSDom にはボックスモデルがなく、親が子供を保護していてクリックさせないなど、
+ある種のアサーションは現実的な環境がないとテストできない。
+
+一方、Cypressなどのブラウザベースのランナーを使えば、アプリケーションのスタイルやコンポーネントをレンダリングし、
+Cypressのドライバに実際のボックスモデルとスタイルレンダリングエンジンを使えるようになる。
+`cy.click`などのCypressのコマンドや、`should('be.visible')`などのアサーションには、
+アサートして対話しようとしているUIがエンドユーザに表示され、対話可能であることを確認するビジネスロジックがある。
+これはブラウザベースのテストランナーに特有の利点だ。
+
+## コンポーネントを正しくレンダリングする
+
+_何らかの_新しいコンポーネントを初めてマウントしたとき、そのコンポーネントが正常に表示されないことに気づくかもしれない。
+アプリケーションがコンポーネントスコープのCSS(スタイル付きコンポーネント、
+あるいは Vue のスコープ付きスタイル）を使って_排他的に_書かれていない限り、
+コンポーネントの外観**と振る舞い**を本番環境と同じようにするには、このガイドに従う必要がある。
+
+:::tip
+
+本番環境で行っていることが、コンポーネントHTMLファイル、あるいはコンポーネントサポートファイルのどれで行われているのか、確認しよう。
+
+:::
+
+## コンポーネントサポートファイル
+
+コンポーネント、あるいは エンドツーエンドスペックファイルをロードすると、最初にsupportFileと呼ばれるものがロードされる。
+デフォルトでは、これはCypress Component Testingの初回のセットアップ時に作成され、
+`cypress/support/component.js`に配置される。このファイルにより、spec の環境をセットする機会が得られる。
+
+コンポーネントspecsの場合、このファイルを使って、通常コンポーネントをマウントする時までに存在するページレベルの懸念事項を設定する。例を示す:
+
+1. ランタイムJavaScriptコード(状態管理、ルーター、UIライブラリ)
+2. グローバルスタイル(スタイルリセット、Tailwind)
+
+原則として、コンポーネントサポートファイルはアプリケーションのメインの JavaScript(例：main.js 、index.js)に**非常によく似ている**必要がある。
+
+## サードパーティ CSS ライブラリ(Tailwind, Bootstrap, PopperJS)
+
+<!--
+What you would see is classes being applied in the inspector, but no styles. e.g. bg-red-500 wouldn't do anything, but it would show up in Chrome.
+
+PopperJS (Floating UI) is probably a better example because the UI is malformed -- not just missing. e.g. the :after CSS being semi-visible
+-->
+
+コンポーネントには、markup、styles、script logic の３つのパーツを持たせることができる。この３つはすべて連携して動作するコンポーネントを提供する。
+
+スタイルもビジネスロジックである。
+
+<!--
+Demonstrate cypress.get('element').should('be.visible')
+OR
+cy.get('element').click().get('something-else').should('be.visible')
+
+// Demonstrate before and after import of main.css
+// in the user's support/component.js file
+// and how 'element' becomes visible/not visible
+// and how that breaks the test
+
+// What's a good example?
+Overlays + Modals are usually really good.
+1. Parent covers child (prevents click due to overflow)
+2. Child height issues
+3. Child visibility issues (opacity)
+
+<template>
+  <div class="overlay absolute w-screen h-screen bg-red-500 z-1000">
+    <button>X</button>
+  </div>
+  <div>
+    Page content
+  </div>
+</template>
+-->
+
+1. Tailwind
+2. CSS Modules
+3. Scoped Styled
+4. Styled Components
+5. Regular Stylesheets
+6. UI Libraries
+
+このガイドはテストインフラストラクチャをセットアップしてコンポーネントのスタイルを適切にレンダリングするのに役に立つ。
+
+アプリケーションの構築方法により、新しいコンポーネントを初めてマウントするときに、完全にスタイルが設定される場合もあれば、何かがスタイリングされない場合もある。
+
+これは理にかなっている。多くのアプリケーションにはコンポーネントファイルの外部で実行される１回限りのセットアップがいくつもある。
+
+我々はアプリケーションが実行されるのをサポートしているコンテキスト内でアプリケーションを構築し、コンポーネントが常にルートレベルのコンポーネント(`<App>`など）あるいは、スタイルルールをもつトップレベルのセレクタ（`#app{/* style in here */}` など）内でレンダリングされることを前提としている。
+
+コンポーネントを分離してテスト対象にしようとすると、その環境を元に戻す必要がある。これについては、後ほど説明する。まず、スタイルシート、テスト、および他のコンポーネントテストツールと比較したCypress の最大の違いの１つについて説明する。
+
+## スタイルシートをインポートする
+
+各アプリケーション、あるいはコンポーネントライブラリは少しずつ異なるスタイルをインポートする。いくつかの手法を概観して、よりテストしやすくするためにコンポーネントを素早く再構築できる方法について説明する。
+
+このガイドに従わない場合、コンポーネントはマウントされるが、正しく表示されず、Cypress の最も価値のある部分のいくつかを利用できない可能性がある。つまり、幅、高さ、オーバフローを暗黙的なチェックしてコンポーネントがページのHTMLに存在するだけでなく、表示されることを確認する。
+
+## スタイルをセットアップするための原則
+
+コンポーネントがマウントされた場合にそれが正しく見えるように、アプリケーションのスタイルのすべてが最終的にCypressになる必要がある。
+
+スタイルを設定するための２つのフックが用意されている:
+
+1. `cypress/support/component-index.html` というHTMLファイル
+2. `cypress/support/component.js` というJavaScript サポートファイル
+
+本番のようなテスト環境を構築する場合、独自のアプリケーションのセットアップを_常に_模倣する必要がある。アプリケーションに、`head`にフォントや他のスタイルシートをロードするために複数の`<link>`タグがある場合、`cypress/support/component-index.html`ファイルに同じ`<link>`タグが含まれていることを確認すること。アプリケーションの`main.js`ファイルにロードされたスタイルについても同じロジックが適用される。`main.js`ファイルの先頭で、`./styles.css`をインポートする場合、`cypress/support/component.js`ファイルにインポートすること。
+
+このため、`main.js`エントリポイントとテストのセットアップで再利用される`src/setup.js`ファイルを作成することを強くお勧めする。
+プロジェクト構造の例は、下記の通り:
+
+```
+> /cypress
+>   /support
+>    /component.js
+> /src
+>  /main.js
+>  /main.css
+>  /setup.js
+```
+
+**setup.js** の中身は下記の通り:
+
+```js
+import '~normalize/normalize.css'
+import 'font-awesome'
+import './main.css'
+
+export const createStore = () => {
+  return /* store */
+}
+
+export const createRouter = () => {
+  return /* router */
+}
+
+export const createApp = () => {
+  return <App router={createRouter()} store={createStore()}></App>
+}
+```
+
+また、`main.js` にあるこの使い方は下記のようになる:
+
+```js
+import { createApp } from './setup.js'
+
+ReactDOM.render(createApp())
+```
+
+また、Cypress はそのサポートファイルで再利用される。
+
+```js
+/* And that's it! */
+import '../../src/setup.js'
+```
+
+このセクションの残りの部分では、フォント、アイコンフォント、スタイルリセット、グローバルアプリケーションスタイル、および、サードパーティコンポーネントライブラリのスタイルなど、遭遇する可能性のある、特定のスタイルの問題についての説明に費やす。
+
+### グローバルアプリケーションスタイル
+
+グローバルアプリケーションスタイルは通常、下記のいずれかの場所に置かれている:
+
+1. アプリケーションの`head`内にインポートする`style.css`ファイル。
+
+これは Cypress Index HTMLファイル内にロードされる必要がある。
+
+2. `App.jsx`、`App.vue`、`App.svelte`など、ルートレベルのコンポーネント内。
+
+これらのグローバルスタイルをトップレベルのスタイルシートに抽出することにより、`Root CSS` を `App` あるいは `Entrypoint`コンポーネントから分離する。Vue と Svelte はどちらもグローバルアプリケーションスタイルをメインのエントリポイントコンポーネントに埋め込む。アプリケーションの残りの部分は、それらのコンポーネント_内で_レンダリングされることが期待されているので、それらのコンポーネントを作成するときに行った仮定はテスト環境で複製される必要がある。さもないと、コンポーネントが正しく表示されない。
+
+```html
+<style>
+  /* In certain scaffolds, the App.vue file does not have a separate styles file */
+
+  #app {
+    font-family: Sans-serif;
+  }
+</style>
+```
+
+これは、こうなるはずだ。
+
+```html
+/* App.vue */ <style src="./app.css" />
+```
+
+また、
+
+```html
+/* cypress/support/component.js */ import '../../src/app.css'
+```
+
+3. アプリケーションの`main.js`ファイル内で（ルートレベルコンポーネントに続いてマウントされる）。
+
+アプリケーションの冒頭でインポートされる、再利用するスタイルシートは最後のセクションで扱う。
+
+```js
+import './main.css'
+```
+
+4. `next.config.js`や`nuxt.config.js`などの設定ファイルの中で。
+
+通常、それらのスタイルシートへのパブリックパスを提供する。`cypress/support/component-index.html`ファイル内に同じパスをインポートすることができる。
+
+### CSSリセットあるいは、Normalize は適用されない
+
+`cypress/suppoert/component-index.html`や`cypress/support/component.js`内で、ノーマライズファイルをインポートしているだろうか？
+
+### フォント：すべてTimes New Romanでレンダリングされる
+
+ほとんどのアプリケーションはフォントを２つの方法のいずれかで処理する。
+
+1. `index.html`が外部のフォントを`head`タグ内でロードする
+
+```html
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&family=Roboto&display=swap"
+    rel="stylesheet"
+  />
+</head>
+```
+
+あるいは、`@import`文を介して
+
+```html
+<head>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&family=Roboto&display=swap');
+  </style>
+</head>
+```
+
+2. メインのスタイルシートがフォントをロードする
+
+```css
+/* main.css */
+@font-face {
+  font-family: 'Fira Sans';
+  src: url('fonts/fira/eot/FiraSans-Regular.eot');
+  src:
+    url('fonts/fira/eot/FiraSans-Regular.eot') format('embedded-opentype'),
+    url('fonts/fira/woff2/FiraSans-Regular.woff2') format('woff2'),
+    url('fonts/fira/woff/FiraSans-Regular.woff') format('woff'),
+    url('fonts/fira/woff2/FiraSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+```
+
+### アイコンフォント: アイコンは何もレンダリングされない
+
+### テーマプロバイダ: プロバイダにアクセスできないので、コンポーネントが正しく見えない/コンパイルされない。
+
+テーマプロバイダ、あるいはI18nやMaterial UIなど他のアプリケーションレベルのラッパーは自分自身をアプリケーションに注入することにより動作する。コンポーネントテストをしているときは、そのコンポーネントを取り囲むコンポーネント階層はレンダリングされない。
+
+このような問題を解決するには、カスタムコマンドとラッパーを確認する
+
+なぜそれが正しくないのかを最初に説明するには、まず本番環境ライクが何を意味するのかを説明する必要がある。
+
+これで、テストの前後の結果が得られたので、次にやるべきことは、テスト対象のコンポーネントを調べて、本番とテストで何が違うのかを確認する。
+
+色やフォントが用意されていないという単純な場合もあれば、コンポーネント全体あるいはその一部がコンパイルされていないという場合もある。
+
+これが正しく表示されない理由は下記の通り:
+
+1. ブラウザがダークモードをサポートしている
+2. `<App>`コンポーネントが独自のスタイルを提供する
